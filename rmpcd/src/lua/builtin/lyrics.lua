@@ -6,11 +6,17 @@ local M = {
     debounce_delay = 500,
     lyrics_dir = os.getenv("HOME") .. "/Music",
     checked_uris = {},
+    -- place_with_song = false,
 }
 
 local function last_path_segment(s)
     local before = s:match("^(.*)/[^/]*$")
     return before or s
+end
+
+local function file_basename(s)
+    local basename = s:match("([^/]+)$")
+    return basename or s
 end
 
 local function replace_after_last_dot(s, replacement)
@@ -21,8 +27,13 @@ end
 ---@param song Song
 local function download(self, song)
     log.info("Fetching lyrics for " .. song.artist .. " - " .. song.title .. " at path " .. song.file)
-    fs.create_dir_all(self.lyrics_dir .. "/" .. last_path_segment(song.file))
-    local lrc_path = self.lyrics_dir .. "/" .. replace_after_last_dot(song.file, "lrc")
+
+    local lrc_path = self.lyrics_dir .. "/" .. replace_after_last_dot(file_basename(song.file), "lrc")
+
+    -- if place_with_song then
+    --     fs.create_dir_all(self.lyrics_dir .. "/" .. last_path_segment(song.file))
+    --     lrc_path = self.lyrics_dir .. "/" .. replace_after_last_dot(song.file, "lrc")
+    -- end
 
     if fs.exists(lrc_path) then
         log.info("Lyrics file already exists at " .. lrc_path .. ", skipping download")
@@ -31,14 +42,14 @@ local function download(self, song)
 
     if song.artist == nil or song.title == nil or song.album == nil then
         log.warn("Song metadata missing artist or title, cannot fetch lyrics for " .. song.file)
-        process.spawn({
-            "rmpc",
-            "remote",
-            "status",
-            "--level",
-            "warn",
-            "Cannot download lyrics for " .. song.file .. " due to incomplete metadata",
-        })
+        -- process.spawn({
+        --     "rmpc",
+        --     "remote",
+        --     "status",
+        --     "--level",
+        --     "warn",
+        --     "Cannot download lyrics for " .. song.file .. " due to incomplete metadata",
+        -- })
         return
     end
 
@@ -56,14 +67,14 @@ local function download(self, song)
 
     if result.code == 404 then
         log.info("Lyrics not found for " .. song.artist .. " - " .. song.title)
-        process.spawn({
-            "rmpc",
-            "remote",
-            "status",
-            "--level",
-            "warn",
-            "Lyrics for '" .. song.artist .. " - " .. song.title .. "' not found",
-        })
+        -- process.spawn({
+        --     "rmpc",
+        --     "remote",
+        --     "status",
+        --     "--level",
+        --     "warn",
+        --     "Lyrics for '" .. song.artist .. " - " .. song.title .. "' not found",
+        -- })
         return
     end
 
@@ -76,14 +87,14 @@ local function download(self, song)
     local json = result:json()
     if util.nil_or_null(json.syncedLyrics) or json.syncedLyrics == "" then
         log.info("Synced lyrics not found for " .. song.artist .. " - " .. song.title)
-        process.spawn({
-            "rmpc",
-            "remote",
-            "status",
-            "--level",
-            "warn",
-            "Synced lyrics for '" .. song.artist .. " - " .. song.title .. "' not found",
-        })
+        -- process.spawn({
+        --     "rmpc",
+        --     "remote",
+        --     "status",
+        --     "--level",
+        --     "warn",
+        --     "Synced lyrics for '" .. song.artist .. " - " .. song.title .. "' not found",
+        -- })
         return
     end
 
@@ -91,6 +102,7 @@ local function download(self, song)
     lrc = lrc .. "[ar:" .. song.artist .. "]\n"
     lrc = lrc .. "[al:" .. song.album .. "]\n"
     lrc = lrc .. "[ti:" .. song.title .. "]\n"
+    lrc = lrc .. "[00:00.00]\n"
     lrc = lrc .. json.syncedLyrics
     log.info("Saving lyrics to " .. lrc_path)
     fs.write_str(lrc_path, lrc)
@@ -104,6 +116,7 @@ local function download_debounced(_self, _song) end
 
 M.setup = function(self, args)
     self.enabled = (args.enabled ~= nil) and args.enabled or true
+    -- self.place_with_song = args.place_with_song or self.place_with_song
 
     if args.lyrics_dir ~= nil then
         self.lyrics_dir = args.lyrics_dir
