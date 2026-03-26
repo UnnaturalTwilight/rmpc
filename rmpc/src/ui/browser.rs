@@ -493,6 +493,14 @@ where
                 self.fetch_data_internal(ctx);
                 ctx.render()?;
             }
+            CommonAction::SelectUp => {
+                self.stack_mut().current_mut().toggle_mark_selected();
+                self.stack_mut()
+                    .current_mut()
+                    .prev(ctx.config.scrolloff, ctx.config.wrap_navigation);
+                self.fetch_data_internal(ctx);
+                ctx.render()?;
+            }
             CommonAction::CopyToClipboard { kind: CopyContentsKind::Content(content) } => {
                 let items = self.items(content.all);
                 let format = match &content.content {

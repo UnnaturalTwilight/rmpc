@@ -948,6 +948,7 @@ pub enum CommonActionFile {
     NextResult,
     PreviousResult,
     Select,
+    SelectUp,
     InvertSelection,
     CopyToClipboard {
         #[serde(default)]
@@ -1013,6 +1014,7 @@ pub enum CommonAction {
     NextResult,
     PreviousResult,
     Select,
+    SelectUp,
     InvertSelection,
     CopyToClipboard {
         kind: CopyContentsKind,
@@ -1062,6 +1064,9 @@ impl ToDescription for CommonAction {
             CommonAction::PreviousResult => "When a filter is active, jump to the previous result".into(),
             CommonAction::Select => {
                 "Mark current item as selected in the browser, useful for example when you want to add multiple songs to a playlist".into()
+            }
+            CommonAction::SelectUp => {
+                "Mark current item as selected in the browser, and move cursor up".into()
             }
             CommonAction::InvertSelection => "Inverts the current selected items".into(),
             CommonAction::CopyToClipboard { kind: _ } => "Copy item(s) under cursor to clipboard".into(),
@@ -1247,6 +1252,7 @@ impl TryFrom<CommonActionFile> for CommonAction {
             CommonActionFile::NextResult => CommonAction::NextResult,
             CommonActionFile::PreviousResult => CommonAction::PreviousResult,
             CommonActionFile::Select => CommonAction::Select,
+            CommonActionFile::SelectUp => CommonAction::SelectUp,
             CommonActionFile::InvertSelection => CommonAction::InvertSelection,
             CommonActionFile::CopyToClipboard { kind } => {
                 CommonAction::CopyToClipboard { kind: kind.try_into()? }
