@@ -1139,6 +1139,14 @@ impl Pane for QueuePane {
                         ctx.render()?;
                     }
                 }
+                CommonAction::SelectUp => {
+                    if self.queue.selected().is_some() {
+                        self.queue.toggle_mark_selected();
+                        self.queue.prev(ctx.config.scrolloff, ctx.config.wrap_navigation);
+
+                        ctx.render()?;
+                    }
+                }
                 CommonAction::InvertSelection => {
                     self.queue.invert_marked();
 
