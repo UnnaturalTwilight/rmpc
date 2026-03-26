@@ -400,6 +400,7 @@ impl SearchPane {
                 CommonAction::NextResult => {}
                 CommonAction::PreviousResult => {}
                 CommonAction::Select => {}
+                CommonAction::SelectUp => {}
                 CommonAction::InvertSelection => {}
                 CommonAction::CopyToClipboard { kind: _ } => {}
                 CommonAction::Rename => {}
@@ -630,6 +631,12 @@ impl SearchPane {
                 CommonAction::Select => {
                     self.songs_dir.toggle_mark_selected();
                     self.songs_dir.next(ctx.config.scrolloff, ctx.config.wrap_navigation);
+
+                    ctx.render()?;
+                }
+                CommonAction::SelectUp => {
+                    self.songs_dir.toggle_mark_selected();
+                    self.songs_dir.prev(ctx.config.scrolloff, ctx.config.wrap_navigation);
 
                     ctx.render()?;
                 }
