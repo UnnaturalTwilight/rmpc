@@ -384,7 +384,7 @@ impl Pane for QueuePane {
                     // We have to subtract marker symbol length from max len in order to make space
                     // for the marker symbol in case we are in the first column of the table and the
                     // song is marked.
-                    if is_marked && i == 0 {
+                    if i == 0 {
                         max_len = max_len.saturating_sub(marker_symbol_len);
                     }
                     let format = &formats[i];
@@ -411,11 +411,14 @@ impl Pane for QueuePane {
                     .unwrap_or_default()
                     .alignment(formats[i].alignment.into());
 
-                    if is_marked && i == 0 {
+                    if i == 0 {
                         let marker_style =
                             dirstack::marker_style(ctx, is_under_cursor, matches_filter);
-                        let marker_span = Span::styled(&config.theme.symbols.marker, marker_style);
-
+                        let marker_span = if is_marked {
+                            Span::styled(&config.theme.symbols.marker, marker_style)
+                        } else {
+                            Span::from(" ".repeat(config.theme.symbols.marker.chars().count()))
+                        };
                         line.spans.splice(..0, std::iter::once(marker_span));
                     }
 
@@ -481,7 +484,7 @@ impl Pane for QueuePane {
         ])
         .areas(area);
 
-        let mut table_area = if self.queue.filter_active {
+        let table_area = if self.queue.filter_active {
             self.areas[Areas::FilterArea] =
                 Rect::new(table_area.x, table_area.y, table_area.width, 1);
             table_area.shrink_from_top(1)
@@ -489,9 +492,6 @@ impl Pane for QueuePane {
             self.areas[Areas::FilterArea] = Rect::default();
             table_area
         };
-
-        // Create 1 column space between the table and the scrollbar
-        table_area.width = table_area.width.saturating_sub(1);
 
         self.areas[Areas::Table] = table_area;
         self.areas[Areas::Scrollbar] = scrollbar_area;

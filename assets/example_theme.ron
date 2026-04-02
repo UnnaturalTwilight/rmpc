@@ -108,6 +108,10 @@
             width: "15%",
             alignment: Right,
         ),
+        (
+            prop: (kind: Empty()),
+            width: "0",
+        ),
     ],
     layout: Split(
         direction: Vertical,
