@@ -195,12 +195,8 @@ impl Default for QueueTableColumnsFile {
             },
             SongTableColumnFile {
                 prop: PropertyFile {
-                    kind: PropertyKindFileOrText::Text(String::new()),
-                    style: Some(StyleFile {
-                        fg: None,
-                        bg: Some("red".to_string()),
-                        modifiers: None,
-                    }),
+                    kind: PropertyKindFileOrText::Empty(),
+                    style: None,
                     default: None,
                 },
                 label: None,

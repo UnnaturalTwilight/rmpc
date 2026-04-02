@@ -217,10 +217,6 @@
                                         direction: Horizontal,
                                         panes: [
                                             (
-                                                size: "1",
-                                                pane: Pane(Empty())
-                                            ),
-                                            (
                                                 size: "100%",
                                                 pane: Pane(Queue)
                                             ),
