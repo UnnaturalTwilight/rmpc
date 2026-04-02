@@ -411,7 +411,7 @@ impl Pane for QueuePane {
                         let marker_span = if is_marked {
                             Span::styled(
                                 &config.theme.symbols.marker,
-                                config.theme.highlighted_item_style,
+                                config.theme.symbols.marker_style.unwrap_or_default(),
                             )
                         } else {
                             Span::from(" ".repeat(config.theme.symbols.marker.chars().count()))
