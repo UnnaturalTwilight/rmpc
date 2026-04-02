@@ -380,7 +380,7 @@ impl Pane for QueuePane {
                     // We have to subtract marker symbol length from max len in order to make space
                     // for the marker symbol in case we are in the first column of the table and the
                     // song is marked.
-                    if is_marked && i == 0 {
+                    if i == 0 {
                         max_len = max_len.saturating_sub(marker_symbol_len);
                     }
                     let format = &formats[i];
@@ -407,11 +407,15 @@ impl Pane for QueuePane {
                     .unwrap_or_default()
                     .alignment(formats[i].alignment.into());
 
-                    if is_marked && i == 0 {
-                        let marker_span = Span::styled(
-                            &config.theme.symbols.marker,
-                            config.theme.highlighted_item_style,
-                        );
+                    if i == 0 {
+                        let marker_span = if is_marked {
+                            Span::styled(
+                                &config.theme.symbols.marker,
+                                config.theme.symbols.marker_style.unwrap_or_default(),
+                            )
+                        } else {
+                            Span::from(" ".repeat(config.theme.symbols.marker.chars().count()))
+                        };
                         line.spans.splice(..0, std::iter::once(marker_span));
                     }
 
