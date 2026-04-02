@@ -88,7 +88,7 @@ impl DirStackItem for DirOrSong {
                 let marker_span = if is_marked {
                     Span::styled(
                         config.theme.symbols.marker.clone(),
-                        config.theme.highlighted_item_style,
+                        config.theme.symbols.marker_style.unwrap_or_default(),
                     )
                 } else {
                     Span::from(" ".repeat(config.theme.symbols.marker.chars().count()))
@@ -165,7 +165,10 @@ impl DirStackItem for Song {
     ) -> ListItem<'a> {
         let config = &ctx.config;
         let marker_span = if is_marked {
-            Span::styled(config.theme.symbols.marker.clone(), config.theme.highlighted_item_style)
+            Span::styled(
+                config.theme.symbols.marker.clone(),
+                config.theme.symbols.marker_style.unwrap_or_default(),
+            )
         } else {
             Span::from(" ".repeat(config.theme.symbols.marker.chars().count()))
         };
@@ -288,7 +291,10 @@ impl DirStackItem for String {
     ) -> ListItem<'a> {
         let config = &ctx.config;
         let marker_span = if is_marked {
-            Span::styled(config.theme.symbols.marker.clone(), config.theme.highlighted_item_style)
+            Span::styled(
+                config.theme.symbols.marker.clone(),
+                config.theme.symbols.marker_style.unwrap_or_default(),
+            )
         } else {
             Span::from(" ".repeat(config.theme.symbols.marker.chars().count()))
         };
