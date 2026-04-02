@@ -56,6 +56,8 @@ where
         let song_format = ctx.config.theme.browser_song_format.0.as_slice();
         let scrollbar_margin = match config.theme.scrollbar.as_ref() {
             Some(scrollbar) if config.theme.draw_borders => {
+                // !!UNDOCUMETNED?? draw_borders is a deprecated property and this behavior is
+                // STRANGE.
                 let scrollbar_track = &scrollbar.symbols[0];
                 Margin { vertical: 0, horizontal: scrollbar_track.is_empty().into() }
             }
