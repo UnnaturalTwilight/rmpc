@@ -485,7 +485,8 @@ impl Pane for QueuePane {
         ])
         .areas(area);
 
-        let mut table_area = if self.queue.filter_active {
+        // let mut table_area ...
+        let table_area = if self.queue.filter_active {
             self.areas[Areas::FilterArea] =
                 Rect::new(table_area.x, table_area.y, table_area.width, 1);
             table_area.shrink_from_top(1)
@@ -495,7 +496,10 @@ impl Pane for QueuePane {
         };
 
         // Create 1 column space between the table and the scrollbar
-        table_area.width = table_area.width.saturating_sub(1);
+        // table_area.width = table_area.width.saturating_sub(1);
+
+        // ^ WHY? It creates a gap between the table and the scrollbar which doesn't get
+        // the highlight style
 
         self.areas[Areas::Table] = table_area;
         self.areas[Areas::Scrollbar] = scrollbar_area;
