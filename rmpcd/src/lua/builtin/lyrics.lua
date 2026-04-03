@@ -42,14 +42,14 @@ local function download(self, song)
 
     if song.artist == nil or song.title == nil or song.album == nil then
         log.warn("Song metadata missing artist or title, cannot fetch lyrics for " .. song.file)
-        process.spawn({
-            "rmpc",
-            "remote",
-            "status",
-            "--level",
-            "warn",
-            "Cannot download lyrics for " .. song.file .. " due to incomplete metadata",
-        })
+        -- process.spawn({
+        --     "rmpc",
+        --     "remote",
+        --     "status",
+        --     "--level",
+        --     "warn",
+        --     "Cannot download lyrics for " .. song.file .. " due to incomplete metadata",
+        -- })
         return
     end
 
@@ -67,14 +67,14 @@ local function download(self, song)
 
     if result.code == 404 then
         log.info("Lyrics not found for " .. song.artist .. " - " .. song.title)
-        process.spawn({
-            "rmpc",
-            "remote",
-            "status",
-            "--level",
-            "warn",
-            "Lyrics for '" .. song.artist .. " - " .. song.title .. "' not found",
-        })
+        -- process.spawn({
+        --     "rmpc",
+        --     "remote",
+        --     "status",
+        --     "--level",
+        --     "warn",
+        --     "Lyrics for '" .. song.artist .. " - " .. song.title .. "' not found",
+        -- })
         return
     end
 
@@ -87,14 +87,14 @@ local function download(self, song)
     local json = result:json()
     if util.nil_or_null(json.syncedLyrics) or json.syncedLyrics == "" then
         log.info("Synced lyrics not found for " .. song.artist .. " - " .. song.title)
-        process.spawn({
-            "rmpc",
-            "remote",
-            "status",
-            "--level",
-            "warn",
-            "Synced lyrics for '" .. song.artist .. " - " .. song.title .. "' not found",
-        })
+        -- process.spawn({
+        --     "rmpc",
+        --     "remote",
+        --     "status",
+        --     "--level",
+        --     "warn",
+        --     "Synced lyrics for '" .. song.artist .. " - " .. song.title .. "' not found",
+        -- })
         return
     end
 
@@ -102,6 +102,7 @@ local function download(self, song)
     lrc = lrc .. "[ar:" .. song.artist .. "]\n"
     lrc = lrc .. "[al:" .. song.album .. "]\n"
     lrc = lrc .. "[ti:" .. song.title .. "]\n"
+    lrc = lrc .. "[00:00.00]\n"
     lrc = lrc .. json.syncedLyrics
     log.info("Saving lyrics to " .. lrc_path)
     fs.write_str(lrc_path, lrc)
