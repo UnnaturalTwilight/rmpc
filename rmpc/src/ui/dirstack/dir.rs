@@ -99,7 +99,7 @@ where
                 self.filter_buffer_id,
                 FILTER_PREFIX,
                 available_width,
-                ctx.config.as_border_style(),
+                ctx.config.as_border_style().into(),
                 ctx.input.is_active(self.filter_buffer_id),
             )
         })

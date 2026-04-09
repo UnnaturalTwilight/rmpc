@@ -18,7 +18,10 @@ use self::{
     scrollbar::ScrollbarConfig,
     style::{StringColor, ToConfigOr},
 };
-use crate::config::theme::borders::{BorderSetLib, BorderSetLibFile};
+use crate::config::theme::{
+    borders::{BorderSetLib, BorderSetLibFile},
+    style::StyleConfig,
+};
 
 pub mod borders;
 pub mod cava;
@@ -53,12 +56,12 @@ pub struct UiConfig {
     pub modal_background_color: Option<Color>,
     pub modal_backdrop: bool,
     pub text_color: Option<Color>,
-    pub preview_label_style: Style,
-    pub preview_metadata_group_style: Style,
-    pub borders_style: Style,
-    pub highlighted_item_style: Style,
-    pub current_item_style: Style,
-    pub highlight_border_style: Style,
+    pub preview_label_style: StyleConfig,
+    pub preview_metadata_group_style: StyleConfig,
+    pub borders_style: StyleConfig,
+    pub highlighted_item_style: StyleConfig,
+    pub current_item_style: StyleConfig,
+    pub highlight_border_style: StyleConfig,
     pub column_widths: [u16; 3],
     pub browser_song_format: SongFormat,
     pub symbols: SymbolsConfig,
@@ -146,21 +149,25 @@ impl Default for UiConfigFile {
                 fg: Some("blue".to_string()),
                 bg: None,
                 modifiers: None,
+                inherit: None,
             }),
             highlighted_item_style: Some(StyleFile {
                 fg: Some("blue".to_string()),
                 bg: None,
                 modifiers: Some(Modifiers::Bold),
+                inherit: None,
             }),
             current_item_style: Some(StyleFile {
                 fg: Some("black".to_string()),
                 bg: Some("blue".to_string()),
                 modifiers: Some(Modifiers::Bold),
+                inherit: None,
             }),
             highlight_border_style: Some(StyleFile {
                 fg: Some("blue".to_string()),
                 bg: None,
                 modifiers: None,
+                inherit: None,
             }),
             tab_bar: TabBarFile {
                 enabled: false,
@@ -168,8 +175,14 @@ impl Default for UiConfigFile {
                     fg: Some("black".to_string()),
                     bg: Some("blue".to_string()),
                     modifiers: Some(Modifiers::Bold),
+                    inherit: None,
                 }),
-                inactive_style: Some(StyleFile { fg: None, bg: None, modifiers: None }),
+                inactive_style: Some(StyleFile {
+                    fg: None,
+                    bg: None,
+                    modifiers: None,
+                    inherit: None,
+                }),
             },
             browser_column_widths: vec![20, 38, 42],
             progress_bar: ProgressBarConfigFile::default(),
@@ -194,11 +207,13 @@ impl Default for UiConfigFile {
                 fg: Some("yellow".to_string()),
                 bg: None,
                 modifiers: None,
+                inherit: None,
             },
             preview_metadata_group_style: StyleFile {
                 fg: Some("yellow".to_string()),
                 bg: None,
                 modifiers: Some(Modifiers::Bold),
+                inherit: None,
             },
             level_styles: LevelStylesFile::default(),
             components: defaults::components(),
@@ -227,8 +242,8 @@ pub struct TabBarFile {
 
 #[derive(Debug, Default, Clone, Copy)]
 pub struct TabBar {
-    pub active_style: Style,
-    pub inactive_style: Style,
+    pub active_style: StyleConfig,
+    pub inactive_style: StyleConfig,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -252,10 +267,10 @@ pub struct SymbolsConfig {
     pub playlist: String,
     pub marker: String,
     pub ellipsis: String,
-    pub song_style: Option<Style>,
-    pub dir_style: Option<Style>,
-    pub playlist_style: Option<Style>,
-    pub marker_style: Option<Style>,
+    pub song_style: Option<StyleConfig>,
+    pub dir_style: Option<StyleConfig>,
+    pub playlist_style: Option<StyleConfig>,
+    pub marker_style: Option<StyleConfig>,
 }
 
 impl From<SymbolsFile> for SymbolsConfig {

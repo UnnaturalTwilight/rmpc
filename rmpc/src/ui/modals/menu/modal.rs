@@ -393,8 +393,9 @@ impl<'a> MenuModal<'a> {
         ctx: &Ctx,
         cb: impl FnOnce(ListSection) -> Option<ListSection>,
     ) -> Self {
-        let section =
-            ListSection::new(ctx.config.as_text_style().patch(ctx.config.theme.current_item_style));
+        let section = ListSection::new(
+            ctx.config.as_text_style().patch(ctx.config.theme.current_item_style).into(),
+        );
         let section = cb(section);
         if let Some(mut section) = section {
             section.state.set_content_len(Some(section.items.len()));
@@ -410,7 +411,7 @@ impl<'a> MenuModal<'a> {
         cb: impl FnOnce(MultiActionSection) -> Option<MultiActionSection<'_>>,
     ) -> Self {
         let section = MultiActionSection::new(
-            ctx.config.as_text_style().patch(ctx.config.theme.current_item_style),
+            ctx.config.as_text_style().patch(ctx.config.theme.current_item_style).into(),
         );
         let section = cb(section);
         if let Some(mut section) = section {
@@ -442,7 +443,7 @@ impl<'a> MenuModal<'a> {
         cb: impl FnOnce(SelectSection) -> Option<SelectSection>,
     ) -> Self {
         let section = SelectSection::new(
-            ctx.config.as_text_style().patch(ctx.config.theme.current_item_style),
+            ctx.config.as_text_style().patch(ctx.config.theme.current_item_style).into(),
         );
         let section = cb(section);
         if let Some(mut section) = section {

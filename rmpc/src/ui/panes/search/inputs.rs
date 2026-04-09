@@ -9,7 +9,7 @@ use rmpc_mpd::{filter::FilterKind, mpd_client::StickerFilter};
 use strum::{FromRepr, IntoStaticStr, VariantNames};
 
 use crate::{
-    config::{FilterKindFile, Search},
+    config::{FilterKindFile, Search, theme::style::StyleConfig},
     ctx::Ctx,
     ui::{
         input::BufferId,
@@ -39,10 +39,10 @@ pub(super) struct InputGroups {
     focused_idx: usize,
     pub area: Rect,
 
-    text_style: Style,
-    separator_style: Style,
-    current_item_style: Style,
-    highlight_item_style: Style,
+    text_style: StyleConfig,
+    separator_style: StyleConfig,
+    current_item_style: StyleConfig,
+    highlight_item_style: StyleConfig,
 
     fold_case: bool,
     strip_diacritics: bool,
@@ -62,10 +62,10 @@ impl InputGroups {
         custom_query: bool,
         stickers_supported: bool,
         strip_diacritics_supported: bool,
-        text_style: Style,
-        separator_style: Style,
-        current_item_style: Style,
-        highlight_item_style: Style,
+        text_style: StyleConfig,
+        separator_style: StyleConfig,
+        current_item_style: StyleConfig,
+        highlight_item_style: StyleConfig,
         ctx: &Ctx,
     ) -> Self {
         let mut inputs = Vec::new();
@@ -627,7 +627,11 @@ impl InputGroups {
                     Button::default()
                         .label(&input.label)
                         .label_alignment(Alignment::Left)
-                        .style(if is_focused { self.current_item_style } else { self.text_style })
+                        .style(if is_focused {
+                            self.current_item_style.into()
+                        } else {
+                            self.text_style.into()
+                        })
                         .render(area, buf);
                 }
                 InputType::Separator => {

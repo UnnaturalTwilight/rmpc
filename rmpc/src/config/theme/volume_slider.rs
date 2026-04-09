@@ -3,6 +3,7 @@ use ratatui::style::{Color, Style};
 use serde::{Deserialize, Serialize};
 
 use super::{StyleFile, style::ToConfigOr};
+use crate::config::theme::style::StyleConfig;
 
 #[derive(Debug, Default, Clone, Hash, Eq, PartialEq)]
 pub struct VolumeSliderConfig {
@@ -15,13 +16,13 @@ pub struct VolumeSliderConfig {
     pub symbols: Symbols,
     /// Style for the filled part of the volume slider
     /// Falls back to blue for foreground and default color for background
-    pub filled_style: Style,
+    pub filled_style: StyleConfig,
     /// Thumb at the end of the filled part of the volume slider
     /// Falls back to blue for foreground and default color for background
-    pub thumb_style: Style,
+    pub thumb_style: StyleConfig,
     /// Style for the empty part of the volume slider
     /// Falls back to gray for foreground and default color for background
-    pub track_style: Style,
+    pub track_style: StyleConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -61,16 +62,19 @@ impl Default for VolumeSliderConfigFile {
                 fg: Some("blue".to_string()),
                 bg: None,
                 modifiers: None,
+                inherit: None,
             }),
             thumb_style: Some(StyleFile {
                 fg: Some("blue".to_string()),
                 bg: None,
                 modifiers: None,
+                inherit: None,
             }),
             track_style: Some(StyleFile {
                 fg: Some("dark_gray".to_string()),
                 bg: None,
                 modifiers: None,
+                inherit: None,
             }),
         }
     }
@@ -108,14 +112,23 @@ mod tests {
                     fg: Some(c1.to_string()),
                     bg: Some(c2.to_string()),
                     modifiers: None,
+                    inherit: None,
                 }),
-                (Some(c1), None) => {
-                    Some(StyleFile { fg: Some(c1.to_string()), bg: None, modifiers: None })
+                (Some(c1), None) => Some(StyleFile {
+                    fg: Some(c1.to_string()),
+                    bg: None,
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, Some(c2)) => Some(StyleFile {
+                    fg: None,
+                    bg: Some(c2.to_string()),
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, None) => {
+                    Some(StyleFile { fg: None, bg: None, modifiers: None, inherit: None })
                 }
-                (None, Some(c2)) => {
-                    Some(StyleFile { fg: None, bg: Some(c2.to_string()), modifiers: None })
-                }
-                (None, None) => Some(StyleFile { fg: None, bg: None, modifiers: None }),
             },
             ..Default::default()
         };
@@ -138,14 +151,23 @@ mod tests {
                     fg: Some(c1.to_string()),
                     bg: Some(c2.to_string()),
                     modifiers: None,
+                    inherit: None,
                 }),
-                (Some(c1), None) => {
-                    Some(StyleFile { fg: Some(c1.to_string()), bg: None, modifiers: None })
+                (Some(c1), None) => Some(StyleFile {
+                    fg: Some(c1.to_string()),
+                    bg: None,
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, Some(c2)) => Some(StyleFile {
+                    fg: None,
+                    bg: Some(c2.to_string()),
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, None) => {
+                    Some(StyleFile { fg: None, bg: None, modifiers: None, inherit: None })
                 }
-                (None, Some(c2)) => {
-                    Some(StyleFile { fg: None, bg: Some(c2.to_string()), modifiers: None })
-                }
-                (None, None) => Some(StyleFile { fg: None, bg: None, modifiers: None }),
             },
             ..Default::default()
         };
@@ -168,14 +190,23 @@ mod tests {
                     fg: Some(c1.to_string()),
                     bg: Some(c2.to_string()),
                     modifiers: None,
+                    inherit: None,
                 }),
-                (Some(c1), None) => {
-                    Some(StyleFile { fg: Some(c1.to_string()), bg: None, modifiers: None })
+                (Some(c1), None) => Some(StyleFile {
+                    fg: Some(c1.to_string()),
+                    bg: None,
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, Some(c2)) => Some(StyleFile {
+                    fg: None,
+                    bg: Some(c2.to_string()),
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, None) => {
+                    Some(StyleFile { fg: None, bg: None, modifiers: None, inherit: None })
                 }
-                (None, Some(c2)) => {
-                    Some(StyleFile { fg: None, bg: Some(c2.to_string()), modifiers: None })
-                }
-                (None, None) => Some(StyleFile { fg: None, bg: None, modifiers: None }),
             },
             ..Default::default()
         };

@@ -1,15 +1,15 @@
 use ::serde::{Deserialize, Serialize};
 use ratatui::style::Style;
 
-use super::{StyleFile, ToConfigOr};
+use super::{StyleConfig, StyleFile, ToConfigOr};
 
 #[derive(derive_more::Debug, Default, Clone)]
 pub struct LevelStyles {
-    pub trace: Style,
-    pub debug: Style,
-    pub warn: Style,
-    pub error: Style,
-    pub info: Style,
+    pub trace: StyleConfig,
+    pub debug: StyleConfig,
+    pub warn: StyleConfig,
+    pub error: StyleConfig,
+    pub info: StyleConfig,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -29,26 +29,31 @@ impl Default for LevelStylesFile {
                 fg: Some("magenta".to_string()),
                 bg: Some("black".to_string()),
                 modifiers: None,
+                inherit: None,
             },
             debug: StyleFile {
                 fg: Some("light_green".to_string()),
                 bg: Some("black".to_string()),
                 modifiers: None,
+                inherit: None,
             },
             warn: StyleFile {
                 fg: Some("yellow".to_string()),
                 bg: Some("black".to_string()),
                 modifiers: None,
+                inherit: None,
             },
             error: StyleFile {
                 fg: Some("red".to_string()),
                 bg: Some("black".to_string()),
                 modifiers: None,
+                inherit: None,
             },
             info: StyleFile {
                 fg: Some("blue".to_string()),
                 bg: Some("black".to_string()),
                 modifiers: None,
+                inherit: None,
             },
         }
     }

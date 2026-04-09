@@ -9,7 +9,10 @@ use serde_with::skip_serializing_none;
 use strum::Display;
 
 use super::style::ToConfigOr;
-use crate::config::{defaults, theme::StyleFile};
+use crate::config::{
+    defaults,
+    theme::{StyleFile, style::StyleConfig},
+};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum SongPropertyFile {
@@ -155,38 +158,38 @@ pub enum StatusProperty {
     Repeat {
         on_label: String,
         off_label: String,
-        on_style: Option<Style>,
-        off_style: Option<Style>,
+        on_style: Option<StyleConfig>,
+        off_style: Option<StyleConfig>,
     },
     Random {
         on_label: String,
         off_label: String,
-        on_style: Option<Style>,
-        off_style: Option<Style>,
+        on_style: Option<StyleConfig>,
+        off_style: Option<StyleConfig>,
     },
     Single {
         on_label: String,
         off_label: String,
         oneshot_label: String,
-        on_style: Option<Style>,
-        off_style: Option<Style>,
-        oneshot_style: Option<Style>,
+        on_style: Option<StyleConfig>,
+        off_style: Option<StyleConfig>,
+        oneshot_style: Option<StyleConfig>,
     },
     Consume {
         on_label: String,
         off_label: String,
         oneshot_label: String,
-        on_style: Option<Style>,
-        off_style: Option<Style>,
-        oneshot_style: Option<Style>,
+        on_style: Option<StyleConfig>,
+        off_style: Option<StyleConfig>,
+        oneshot_style: Option<StyleConfig>,
     },
     State {
         playing_label: String,
         paused_label: String,
         stopped_label: String,
-        playing_style: Option<Style>,
-        paused_style: Option<Style>,
-        stopped_style: Option<Style>,
+        playing_style: Option<StyleConfig>,
+        paused_style: Option<StyleConfig>,
+        stopped_style: Option<StyleConfig>,
     },
     Partition,
     Elapsed,
@@ -311,7 +314,7 @@ pub enum PropertyKind {
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Builder)]
 pub struct Property<T> {
     pub kind: PropertyKindOrText<T>,
-    pub style: Option<Style>,
+    pub style: Option<StyleConfig>,
     pub default: Option<Box<Property<T>>>,
 }
 
@@ -325,7 +328,7 @@ pub enum WidgetPropertyFile {
 #[derive(Debug, Display, Clone, Copy, Hash, Eq, PartialEq)]
 pub enum WidgetProperty {
     ScanStatus,
-    States { active_style: Style, separator_style: Style },
+    States { active_style: StyleConfig, separator_style: StyleConfig },
     Volume,
 }
 

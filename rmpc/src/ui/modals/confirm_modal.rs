@@ -93,8 +93,10 @@ impl<'a> ConfirmModal<'a> {
 
         button_group_state.set_button_count(buttons.len());
         let button_group = ButtonGroup::default()
-            .active_style(ctx.config.as_text_style().patch(ctx.config.theme.current_item_style))
-            .inactive_style(ctx.config.as_text_style())
+            .active_style(
+                ctx.config.as_text_style().patch(ctx.config.theme.current_item_style).into(),
+            )
+            .inactive_style(ctx.config.as_text_style().into())
             .buttons(buttons)
             .block(
                 Block::default()

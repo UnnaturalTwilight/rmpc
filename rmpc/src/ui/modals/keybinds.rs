@@ -268,7 +268,7 @@ impl Modal for KeybindsModal {
             action_area.width,
             desc_area.width,
             self.filter_active.then_some(filter.as_str()),
-            ctx.config.theme.highlighted_item_style,
+            ctx.config.theme.highlighted_item_style.into(),
         )
         .unzip();
         let nav_rows: (Vec<_>, Vec<_>) = row(
@@ -277,7 +277,7 @@ impl Modal for KeybindsModal {
             action_area.width,
             desc_area.width,
             self.filter_active.then_some(filter.as_str()),
-            ctx.config.theme.highlighted_item_style,
+            ctx.config.theme.highlighted_item_style.into(),
         )
         .unzip();
         let queue_rows: (Vec<_>, Vec<_>) = row(
@@ -286,16 +286,16 @@ impl Modal for KeybindsModal {
             action_area.width,
             desc_area.width,
             self.filter_active.then_some(filter.as_str()),
-            ctx.config.theme.highlighted_item_style,
+            ctx.config.theme.highlighted_item_style.into(),
         )
         .unzip();
 
-        let rows = row_header(&global, "Global", header_style)
+        let rows = row_header(&global, "Global", header_style.into())
             .into_iter()
             .chain(global_rows.1)
-            .chain(row_header(&navigation, "Navigation", header_style))
+            .chain(row_header(&navigation, "Navigation", header_style.into()))
             .chain(nav_rows.1)
-            .chain(row_header(&queue, "Queue", header_style))
+            .chain(row_header(&queue, "Queue", header_style.into()))
             .chain(queue_rows.1)
             .collect_vec();
 

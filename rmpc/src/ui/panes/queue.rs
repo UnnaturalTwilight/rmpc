@@ -367,7 +367,7 @@ impl Pane for QueuePane {
         let table = VirtualizedTable::new(&self.queue.items)
             .column_widths(self.column_widths.clone())
             .row_highlight_style(if self.highlight_enabled {
-                config.theme.current_item_style
+                config.theme.current_item_style.into()
             } else {
                 Style::default()
             })
@@ -431,7 +431,7 @@ impl Pane for QueuePane {
 
                 let mut row = QueueRow::default();
                 if is_matching_search {
-                    row.cell_style = Some(config.theme.highlighted_item_style);
+                    row.cell_style = Some(config.theme.highlighted_item_style.into());
                 }
 
                 let sep = ctx.config.theme.song_table_album_separator;

@@ -1080,8 +1080,8 @@ impl Pane for SearchPane {
                 self.inputs.render(previous_area, frame.buffer_mut(), ctx);
                 if let Some(song) = self.songs_dir.selected() {
                     let preview = song.to_preview(
-                        ctx.config.theme.preview_label_style,
-                        ctx.config.theme.preview_metadata_group_style,
+                        ctx.config.theme.preview_label_style.into(),
+                        ctx.config.theme.preview_metadata_group_style.into(),
                         ctx,
                     );
                     let mut result = Vec::new();

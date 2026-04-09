@@ -5,12 +5,14 @@ use ratatui::style::Color as RColor;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
+use crate::config;
+
 pub trait ToConfigOr {
     fn to_config_or(
         &self,
         default_fg: Option<RColor>,
         default_bg: Option<RColor>,
-    ) -> Result<ratatui::style::Style>;
+    ) -> Result<StyleConfig>;
 }
 
 pub(super) struct StringColor(pub Option<String>);
@@ -28,6 +30,7 @@ pub struct StyleFile {
     pub fg: Option<String>,
     pub bg: Option<String>,
     pub modifiers: Option<Modifiers>,
+    pub inherit: Option<String>,
 }
 
 impl std::fmt::Display for Modifiers {
@@ -58,7 +61,7 @@ impl std::fmt::Display for StyleFile {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "Style({},{},{})",
+            "Style({},{},{},{})",
             match self.fg {
                 Some(ref fg) => fg.to_owned(),
                 None => "none".to_string(),
@@ -67,7 +70,11 @@ impl std::fmt::Display for StyleFile {
                 Some(ref bg) => bg.to_owned(),
                 None => "none".to_string(),
             },
-            self.modifiers.as_ref().map_or_else(|| "none".to_string(), ToString::to_string)
+            self.modifiers.as_ref().map_or_else(|| "none".to_string(), ToString::to_string),
+            match self.inherit {
+                Some(ref inherit) => inherit.to_owned(),
+                None => "none".to_string(),
+            }
         )
     }
 }
@@ -78,27 +85,29 @@ impl ToConfigOr for StyleFile {
         &self,
         default_fg: Option<RColor>,
         default_bg: Option<RColor>,
-    ) -> Result<ratatui::style::Style> {
+    ) -> Result<StyleConfig> {
         let fg: Option<ConfigColor> =
             self.fg.as_ref().map(|s| s.as_bytes().try_into()).transpose()?;
-        let fg: Option<RColor> = fg.map(Into::into).or(default_fg);
+        let fg: Option<RColor> = fg.map(Into::into);
 
         let bg: Option<ConfigColor> =
             self.bg.as_ref().map(|s| s.as_bytes().try_into()).transpose()?;
-        let bg: Option<RColor> = bg.map(Into::into).or(default_bg);
+        let bg: Option<RColor> = bg.map(Into::into);
 
         let modifiers =
             self.modifiers.as_ref().map_or(ratatui::style::Modifier::empty(), Into::into);
 
-        let mut result = ratatui::style::Style::default();
-        if let Some(fg) = fg {
-            result = result.fg(fg);
+        let mut inherit = ratatui::style::Style::default();
+        if let Some(inherit_fg) = default_fg {
+            inherit = inherit.fg(inherit_fg);
         }
-        if let Some(bg) = bg {
-            result = result.bg(bg);
+        if let Some(inherit_bg) = default_bg {
+            inherit = inherit.bg(inherit_bg);
         }
 
-        Ok(result.add_modifier(modifiers))
+        let result = StyleConfig { fg, bg, modifiers: Some(modifiers), inherit: Some(inherit) };
+
+        Ok(result)
     }
 }
 
@@ -108,35 +117,40 @@ impl ToConfigOr for Option<StyleFile> {
         &self,
         default_fg: Option<RColor>,
         default_bg: Option<RColor>,
-    ) -> Result<ratatui::style::Style> {
+    ) -> Result<StyleConfig> {
         if let Some(val) = self {
             let fg: Option<ConfigColor> =
                 val.fg.as_ref().map(|s| s.as_bytes().try_into()).transpose()?;
-            let fg: Option<RColor> = fg.map(Into::into).or(default_fg);
+            let fg: Option<RColor> = fg.map(Into::into);
 
             let bg: Option<ConfigColor> =
                 val.bg.as_ref().map(|s| s.as_bytes().try_into()).transpose()?;
-            let bg: Option<RColor> = bg.map(Into::into).or(default_bg);
+            let bg: Option<RColor> = bg.map(Into::into);
 
             let modifiers =
                 val.modifiers.as_ref().map_or(ratatui::style::Modifier::empty(), Into::into);
 
-            let mut result = ratatui::style::Style::default();
-            if let Some(fg) = fg {
-                result = result.fg(fg);
+            let mut inherit = ratatui::style::Style::default();
+            if let Some(inherit_fg) = default_fg {
+                inherit = inherit.fg(inherit_fg);
             }
-            if let Some(bg) = bg {
-                result = result.bg(bg);
+            if let Some(inherit_bg) = default_bg {
+                inherit = inherit.bg(inherit_bg);
             }
-            Ok(result.add_modifier(modifiers))
+            let result = StyleConfig { fg, bg, modifiers: Some(modifiers), inherit: Some(inherit) };
+
+            Ok(result)
         } else {
-            let mut result = ratatui::style::Style::default();
-            if let Some(fg) = default_fg {
-                result = result.fg(fg);
+            let mut inherit = ratatui::style::Style::default();
+            if let Some(inherit_fg) = default_fg {
+                inherit = inherit.fg(inherit_fg);
             }
-            if let Some(bg) = default_bg {
-                result = result.bg(bg);
+            if let Some(inherit_bg) = default_bg {
+                inherit = inherit.bg(inherit_bg);
             }
+            let result =
+                StyleConfig { fg: None, bg: None, modifiers: None, inherit: Some(inherit) };
+
             Ok(result)
         }
     }
@@ -295,6 +309,53 @@ impl From<crate::config::ConfigColor> for RColor {
             CColor::Hex(v) => RColor::from_u32(v),
             CColor::Indexed(v) => RColor::Indexed(v),
         }
+    }
+}
+
+#[derive(Debug, Default, Clone, Copy, Eq, PartialEq, Hash)]
+pub struct StyleConfig {
+    pub fg: Option<RColor>,
+    pub bg: Option<RColor>,
+    pub modifiers: Option<ratatui::style::Modifier>,
+    pub inherit: Option<ratatui::style::Style>,
+}
+
+impl StyleConfig {
+    pub fn patch(&self, other: StyleConfig) -> StyleConfig {
+        let mut base = ratatui::style::Style::default();
+        if let Some(fg) = self.fg {
+            base = base.fg(fg);
+        }
+        if let Some(bg) = self.bg {
+            base = base.bg(bg);
+        }
+        StyleConfig {
+            fg: other.fg,
+            bg: other.bg,
+            modifiers: other.modifiers.or(self.modifiers),
+            inherit: Some(base),
+        }
+    }
+}
+
+impl From<StyleConfig> for ratatui::style::Style {
+    fn from(value: StyleConfig) -> Self {
+        let mut result = ratatui::style::Style::default();
+        if let Some(fg) = value.fg {
+            result = result.fg(fg);
+        }
+        if let Some(bg) = value.bg {
+            result = result.bg(bg);
+        }
+        if let Some(modifiers) = value.modifiers {
+            result = result.add_modifier(modifiers);
+        }
+        if let Some(inherit) = value.inherit {
+            // Don't inherit modifiers, since they can't be unset in the config
+            let inherit = inherit.remove_modifier(ratatui::style::Modifier::all());
+            result = inherit.patch(result);
+        }
+        result
     }
 }
 

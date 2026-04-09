@@ -6,7 +6,7 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph, Widget, Wrap},
 };
 
-use crate::{ctx::Ctx, ui::input::BufferId};
+use crate::{config::theme::style::StyleConfig, ctx::Ctx, ui::input::BufferId};
 
 #[derive(Debug)]
 pub struct Input<'a> {
@@ -16,11 +16,11 @@ pub struct Input<'a> {
     text: &'a str,
     placeholder: Option<&'a str>,
     label: &'a str,
-    label_style: Style,
-    input_style: Style,
+    label_style: StyleConfig,
+    input_style: StyleConfig,
     focused: bool,
-    focused_style: Style,
-    unfocused_style: Style,
+    focused_style: StyleConfig,
+    unfocused_style: StyleConfig,
     borderless: bool,
     spacing: u16,
 }
@@ -33,11 +33,11 @@ impl<'a> Input<'a> {
         buffer_id: BufferId,
         placeholder: Option<&'a str>,
         label: &'a str,
-        #[builder(default)] label_style: Style,
-        #[builder(default)] input_style: Style,
+        #[builder(default)] label_style: StyleConfig,
+        #[builder(default)] input_style: StyleConfig,
         #[builder(default)] focused: bool,
-        #[builder(default)] focused_style: Style,
-        #[builder(default)] unfocused_style: Style,
+        #[builder(default)] focused_style: StyleConfig,
+        #[builder(default)] unfocused_style: StyleConfig,
         #[builder(default)] borderless: bool,
         #[builder(default)] spacing: u16,
     ) -> Input<'a> {
@@ -63,11 +63,11 @@ impl<'a> Input<'a> {
         text: &'a str,
         placeholder: Option<&'a str>,
         label: &'a str,
-        #[builder(default)] label_style: Style,
-        #[builder(default)] input_style: Style,
+        #[builder(default)] label_style: StyleConfig,
+        #[builder(default)] input_style: StyleConfig,
         #[builder(default)] focused: bool,
-        #[builder(default)] focused_style: Style,
-        #[builder(default)] unfocused_style: Style,
+        #[builder(default)] focused_style: StyleConfig,
+        #[builder(default)] unfocused_style: StyleConfig,
         #[builder(default)] borderless: bool,
         #[builder(default)] spacing: u16,
     ) -> Input<'a> {
@@ -113,7 +113,7 @@ impl Widget for Input<'_> {
                 self.ctx.input.as_spans(
                     id,
                     input_area.width.saturating_sub(if self.borderless { 0 } else { 2 }),
-                    self.input_style,
+                    self.input_style.into(),
                     is_active,
                 )
             });

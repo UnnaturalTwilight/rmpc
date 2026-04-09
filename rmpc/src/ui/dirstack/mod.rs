@@ -149,7 +149,7 @@ impl DirStackItem for Song {
     fn to_file_preview(&self, ctx: &Ctx) -> Vec<PreviewGroup> {
         let key_style = ctx.config.theme.preview_label_style;
         let group_style = ctx.config.theme.preview_metadata_group_style;
-        self.to_preview(key_style, group_style, ctx)
+        self.to_preview(key_style.into(), group_style.into(), ctx)
     }
 
     fn matches(&self, song_format: &[Property<SongProperty>], ctx: &Ctx, filter: &str) -> bool {

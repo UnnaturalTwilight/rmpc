@@ -47,9 +47,9 @@ impl Pane for ProgressBarPane {
                     ctx.status.elapsed.as_secs_f32() / ctx.status.duration.as_secs_f32()
                 };
                 let bar = ProgressBar::builder()
-                    .elapsed_style(bar_cfg.elapsed_style)
-                    .thumb_style(bar_cfg.thumb_style)
-                    .track_style(bar_cfg.track_style)
+                    .elapsed_style(bar_cfg.elapsed_style.into())
+                    .thumb_style(bar_cfg.thumb_style.into())
+                    .track_style(bar_cfg.track_style.into())
                     .start_char(&bar_cfg.symbols[0])
                     .elapsed_char(&bar_cfg.symbols[1])
                     .thumb_char(&bar_cfg.symbols[2])

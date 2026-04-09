@@ -65,7 +65,7 @@ impl Pane for LyricsPane {
         let default_style = Style::default().fg(ctx.config.theme.text_color.unwrap_or_default());
 
         let middle_style = if first_line_reached {
-            ctx.config.theme.highlighted_item_style
+            ctx.config.theme.highlighted_item_style.into()
         } else {
             default_style
         };

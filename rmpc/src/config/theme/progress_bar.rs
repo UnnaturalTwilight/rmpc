@@ -3,6 +3,7 @@ use ratatui::style::{Color, Style};
 use serde::{Deserialize, Serialize};
 
 use super::{StyleFile, style::ToConfigOr};
+use crate::config::theme::style::StyleConfig;
 
 #[derive(Debug, Default, Clone)]
 pub struct ProgressBarConfig {
@@ -14,13 +15,13 @@ pub struct ProgressBarConfig {
     /// Fifth symbol is used for the end boundary of the progress bar
     pub symbols: [String; 5],
     /// Fall sback to blue for foreground and black for background
-    pub elapsed_style: Style,
+    pub elapsed_style: StyleConfig,
     /// Thumb at the end of the elapsed part of the progress bar
     /// Fall sback to blue for foreground and black for background
-    pub thumb_style: Style,
+    pub thumb_style: StyleConfig,
     /// Fall sback to black for foreground and default color for background
     /// For transparent track you should set the track symbol to empty string
-    pub track_style: Style,
+    pub track_style: StyleConfig,
     /// Whether to use only the track symbol and style when the progress is
     /// empty (0%).
     pub use_track_when_empty: bool,
@@ -50,11 +51,13 @@ impl Default for ProgressBarConfigFile {
                 fg: Some("blue".to_string()),
                 bg: None,
                 modifiers: None,
+                inherit: None,
             }),
             thumb_style: Some(StyleFile {
                 fg: Some("blue".to_string()),
                 bg: None,
                 modifiers: None,
+                inherit: None,
             }),
             track_style: None,
             use_track_when_empty: true,
@@ -160,14 +163,23 @@ mod tests {
                     fg: Some(c1.to_string()),
                     bg: Some(c2.to_string()),
                     modifiers: None,
+                    inherit: None,
                 }),
-                (Some(c1), None) => {
-                    Some(StyleFile { fg: Some(c1.to_string()), bg: None, modifiers: None })
+                (Some(c1), None) => Some(StyleFile {
+                    fg: Some(c1.to_string()),
+                    bg: None,
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, Some(c2)) => Some(StyleFile {
+                    fg: None,
+                    bg: Some(c2.to_string()),
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, None) => {
+                    Some(StyleFile { fg: None, bg: None, modifiers: None, inherit: None })
                 }
-                (None, Some(c2)) => {
-                    Some(StyleFile { fg: None, bg: Some(c2.to_string()), modifiers: None })
-                }
-                (None, None) => Some(StyleFile { fg: None, bg: None, modifiers: None }),
             },
             ..Default::default()
         };
@@ -190,14 +202,23 @@ mod tests {
                     fg: Some(c1.to_string()),
                     bg: Some(c2.to_string()),
                     modifiers: None,
+                    inherit: None,
                 }),
-                (Some(c1), None) => {
-                    Some(StyleFile { fg: Some(c1.to_string()), bg: None, modifiers: None })
+                (Some(c1), None) => Some(StyleFile {
+                    fg: Some(c1.to_string()),
+                    bg: None,
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, Some(c2)) => Some(StyleFile {
+                    fg: None,
+                    bg: Some(c2.to_string()),
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, None) => {
+                    Some(StyleFile { fg: None, bg: None, modifiers: None, inherit: None })
                 }
-                (None, Some(c2)) => {
-                    Some(StyleFile { fg: None, bg: Some(c2.to_string()), modifiers: None })
-                }
-                (None, None) => Some(StyleFile { fg: None, bg: None, modifiers: None }),
             },
             ..Default::default()
         };
@@ -220,14 +241,23 @@ mod tests {
                     fg: Some(c1.to_string()),
                     bg: Some(c2.to_string()),
                     modifiers: None,
+                    inherit: None,
                 }),
-                (Some(c1), None) => {
-                    Some(StyleFile { fg: Some(c1.to_string()), bg: None, modifiers: None })
+                (Some(c1), None) => Some(StyleFile {
+                    fg: Some(c1.to_string()),
+                    bg: None,
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, Some(c2)) => Some(StyleFile {
+                    fg: None,
+                    bg: Some(c2.to_string()),
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, None) => {
+                    Some(StyleFile { fg: None, bg: None, modifiers: None, inherit: None })
                 }
-                (None, Some(c2)) => {
-                    Some(StyleFile { fg: None, bg: Some(c2.to_string()), modifiers: None })
-                }
-                (None, None) => Some(StyleFile { fg: None, bg: None, modifiers: None }),
             },
             ..Default::default()
         };
@@ -245,7 +275,12 @@ mod tests {
     #[test_case(Modifiers::CrossedOut, RM::CROSSED_OUT; "crossed out")]
     fn track_modifiers(input: Modifiers, expected: RM) {
         let input = ProgressBarConfigFile {
-            track_style: Some(StyleFile { fg: None, bg: None, modifiers: Some(input) }),
+            track_style: Some(StyleFile {
+                fg: None,
+                bg: None,
+                modifiers: Some(input),
+                inherit: None,
+            }),
             ..Default::default()
         };
 
@@ -265,7 +300,12 @@ mod tests {
     #[test_case(Modifiers::CrossedOut, RM::CROSSED_OUT; "crossed out")]
     fn thumb_modifiers(input: Modifiers, expected: RM) {
         let input = ProgressBarConfigFile {
-            thumb_style: Some(StyleFile { fg: None, bg: None, modifiers: Some(input) }),
+            thumb_style: Some(StyleFile {
+                fg: None,
+                bg: None,
+                modifiers: Some(input),
+                inherit: None,
+            }),
             ..Default::default()
         };
 
@@ -285,7 +325,12 @@ mod tests {
     #[test_case(Modifiers::CrossedOut, RM::CROSSED_OUT; "crossed out")]
     fn elapsed_modifiers(input: Modifiers, expected: RM) {
         let input = ProgressBarConfigFile {
-            elapsed_style: Some(StyleFile { fg: None, bg: None, modifiers: Some(input) }),
+            elapsed_style: Some(StyleFile {
+                fg: None,
+                bg: None,
+                modifiers: Some(input),
+                inherit: None,
+            }),
             ..Default::default()
         };
 

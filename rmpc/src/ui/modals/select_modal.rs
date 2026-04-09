@@ -69,7 +69,7 @@ impl<'a, V: Display, Callback: FnOnce(&Ctx, V, usize) -> Result<()>> SelectModal
 
         let button_group = ButtonGroup::default()
             .buttons(buttons)
-            .inactive_style(ctx.config.as_text_style())
+            .inactive_style(ctx.config.as_text_style().into())
             .block(
                 Block::default()
                     .borders(Borders::ALL)
@@ -125,14 +125,14 @@ impl<V: Display + std::fmt::Debug, Callback: FnOnce(&Ctx, V, usize) -> Result<()
             .style(ctx.config.as_text_style())
             .highlight_style(match self.focused {
                 FocusedComponent::Buttons => Style::default().reversed(),
-                FocusedComponent::List => ctx.config.theme.current_item_style,
+                FocusedComponent::List => ctx.config.theme.current_item_style.into(),
             })
             .block(list_block);
 
         self.button_group.set_active_style(match self.focused {
             FocusedComponent::List => Style::default().reversed(),
             FocusedComponent::Buttons => {
-                ctx.config.as_text_style().patch(ctx.config.theme.current_item_style)
+                ctx.config.as_text_style().patch(ctx.config.theme.current_item_style).into()
             }
         });
 

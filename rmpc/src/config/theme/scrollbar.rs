@@ -2,7 +2,7 @@ use anyhow::Result;
 use ratatui::style::{Color, Style};
 use serde::{Deserialize, Serialize};
 
-use super::{StyleFile, style::ToConfigOr};
+use super::{StyleConfig, StyleFile, style::ToConfigOr};
 
 #[derive(Debug, Default, Clone)]
 pub struct ScrollbarConfig {
@@ -14,12 +14,12 @@ pub struct ScrollbarConfig {
     pub symbols: [String; 4],
     /// Fall sback to border color for foreground and default color for
     /// background
-    pub track_style: Style,
+    pub track_style: StyleConfig,
     /// Fall sback to border color for foreground and default color for
     /// background
-    pub ends_style: Style,
+    pub ends_style: StyleConfig,
     // Falls back to blue for foreground and default color for background
-    pub thumb_style: Style,
+    pub thumb_style: StyleConfig,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -34,12 +34,13 @@ impl Default for ScrollbarConfigFile {
     fn default() -> Self {
         Self {
             symbols: vec!["│".to_owned(), "█".to_owned(), "▲".to_owned(), "▼".to_owned()],
-            track_style: Some(StyleFile { fg: None, bg: None, modifiers: None }),
-            ends_style: Some(StyleFile { fg: None, bg: None, modifiers: None }),
+            track_style: Some(StyleFile { fg: None, bg: None, modifiers: None, inherit: None }),
+            ends_style: Some(StyleFile { fg: None, bg: None, modifiers: None, inherit: None }),
             thumb_style: Some(StyleFile {
                 fg: Some("blue".to_string()),
                 bg: None,
                 modifiers: None,
+                inherit: None,
             }),
         }
     }
@@ -100,14 +101,23 @@ mod tests {
                     fg: Some(c1.to_string()),
                     bg: Some(c2.to_string()),
                     modifiers: None,
+                    inherit: None,
                 }),
-                (Some(c1), None) => {
-                    Some(StyleFile { fg: Some(c1.to_string()), bg: None, modifiers: None })
+                (Some(c1), None) => Some(StyleFile {
+                    fg: Some(c1.to_string()),
+                    bg: None,
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, Some(c2)) => Some(StyleFile {
+                    fg: None,
+                    bg: Some(c2.to_string()),
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, None) => {
+                    Some(StyleFile { fg: None, bg: None, modifiers: None, inherit: None })
                 }
-                (None, Some(c2)) => {
-                    Some(StyleFile { fg: None, bg: Some(c2.to_string()), modifiers: None })
-                }
-                (None, None) => Some(StyleFile { fg: None, bg: None, modifiers: None }),
             },
             ..Default::default()
         };
@@ -131,14 +141,23 @@ mod tests {
                     fg: Some(c1.to_string()),
                     bg: Some(c2.to_string()),
                     modifiers: None,
+                    inherit: None,
                 }),
-                (Some(c1), None) => {
-                    Some(StyleFile { fg: Some(c1.to_string()), bg: None, modifiers: None })
+                (Some(c1), None) => Some(StyleFile {
+                    fg: Some(c1.to_string()),
+                    bg: None,
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, Some(c2)) => Some(StyleFile {
+                    fg: None,
+                    bg: Some(c2.to_string()),
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, None) => {
+                    Some(StyleFile { fg: None, bg: None, modifiers: None, inherit: None })
                 }
-                (None, Some(c2)) => {
-                    Some(StyleFile { fg: None, bg: Some(c2.to_string()), modifiers: None })
-                }
-                (None, None) => Some(StyleFile { fg: None, bg: None, modifiers: None }),
             },
             ..Default::default()
         };
@@ -162,14 +181,23 @@ mod tests {
                     fg: Some(c1.to_string()),
                     bg: Some(c2.to_string()),
                     modifiers: None,
+                    inherit: None,
                 }),
-                (Some(c1), None) => {
-                    Some(StyleFile { fg: Some(c1.to_string()), bg: None, modifiers: None })
+                (Some(c1), None) => Some(StyleFile {
+                    fg: Some(c1.to_string()),
+                    bg: None,
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, Some(c2)) => Some(StyleFile {
+                    fg: None,
+                    bg: Some(c2.to_string()),
+                    modifiers: None,
+                    inherit: None,
+                }),
+                (None, None) => {
+                    Some(StyleFile { fg: None, bg: None, modifiers: None, inherit: None })
                 }
-                (None, Some(c2)) => {
-                    Some(StyleFile { fg: None, bg: Some(c2.to_string()), modifiers: None })
-                }
-                (None, None) => Some(StyleFile { fg: None, bg: None, modifiers: None }),
             },
             ..Default::default()
         };
@@ -187,7 +215,12 @@ mod tests {
     #[test_case(Modifiers::CrossedOut, RM::CROSSED_OUT; "crossed out")]
     fn thumb_modifiers(input: Modifiers, expected: RM) {
         let input = ScrollbarConfigFile {
-            thumb_style: Some(StyleFile { fg: None, bg: None, modifiers: Some(input) }),
+            thumb_style: Some(StyleFile {
+                fg: None,
+                bg: None,
+                modifiers: Some(input),
+                inherit: None,
+            }),
             ..Default::default()
         };
 
@@ -207,7 +240,12 @@ mod tests {
     #[test_case(Modifiers::CrossedOut, RM::CROSSED_OUT; "crossed out")]
     fn ends_modifiers(input: Modifiers, expected: RM) {
         let input = ScrollbarConfigFile {
-            ends_style: Some(StyleFile { fg: None, bg: None, modifiers: Some(input) }),
+            ends_style: Some(StyleFile {
+                fg: None,
+                bg: None,
+                modifiers: Some(input),
+                inherit: None,
+            }),
             ..Default::default()
         };
 
@@ -227,7 +265,12 @@ mod tests {
     #[test_case(Modifiers::CrossedOut, RM::CROSSED_OUT; "crossed out")]
     fn track_modifiers(input: Modifiers, expected: RM) {
         let input = ScrollbarConfigFile {
-            track_style: Some(StyleFile { fg: None, bg: None, modifiers: Some(input) }),
+            track_style: Some(StyleFile {
+                fg: None,
+                bg: None,
+                modifiers: Some(input),
+                inherit: None,
+            }),
             ..Default::default()
         };
 

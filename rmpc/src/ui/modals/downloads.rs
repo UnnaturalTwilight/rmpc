@@ -318,12 +318,12 @@ enum ContextAction {
 impl DownloadState {
     fn as_style(&self, ctx: &Ctx) -> ratatui::style::Style {
         match self {
-            DownloadState::Queued => ctx.config.theme.level_styles.info,
-            DownloadState::Downloading => ctx.config.theme.level_styles.warn,
-            DownloadState::Completed { .. } => ctx.config.theme.level_styles.info,
-            DownloadState::AlreadyDownloaded { .. } => ctx.config.theme.level_styles.info,
-            DownloadState::Failed { .. } => ctx.config.theme.level_styles.error,
-            DownloadState::Canceled => ctx.config.theme.level_styles.error,
+            DownloadState::Queued => ctx.config.theme.level_styles.info.into(),
+            DownloadState::Downloading => ctx.config.theme.level_styles.warn.into(),
+            DownloadState::Completed { .. } => ctx.config.theme.level_styles.info.into(),
+            DownloadState::AlreadyDownloaded { .. } => ctx.config.theme.level_styles.info.into(),
+            DownloadState::Failed { .. } => ctx.config.theme.level_styles.error.into(),
+            DownloadState::Canceled => ctx.config.theme.level_styles.error.into(),
         }
     }
 }

@@ -35,7 +35,7 @@ use crate::{
         cli::{Args, Command},
         keys::{CommonAction, GlobalAction, Key, actions::RateKind},
         tabs::{PaneType, SizedPaneOrSplit, TabName},
-        theme::level_styles::LevelStyles,
+        theme::{level_styles::LevelStyles, style::StyleConfig},
     },
     core::{
         command::{create_env, run_external},
@@ -1152,11 +1152,11 @@ impl From<&Level> for Color {
 impl Level {
     pub fn into_style(self, config: &LevelStyles) -> Style {
         match self {
-            Level::Trace => config.trace,
-            Level::Debug => config.debug,
-            Level::Warn => config.warn,
-            Level::Error => config.error,
-            Level::Info => config.info,
+            Level::Trace => config.trace.into(),
+            Level::Debug => config.debug.into(),
+            Level::Warn => config.warn.into(),
+            Level::Error => config.error.into(),
+            Level::Info => config.info.into(),
         }
     }
 }
@@ -1187,16 +1187,19 @@ impl Config {
             .clone()
     }
 
-    fn as_border_style(&self) -> ratatui::style::Style {
+    fn as_border_style(&self) -> StyleConfig {
         self.theme.borders_style
     }
 
-    fn as_focused_border_style(&self) -> ratatui::style::Style {
+    fn as_focused_border_style(&self) -> StyleConfig {
         self.theme.highlight_border_style
     }
 
-    fn as_text_style(&self) -> ratatui::style::Style {
-        self.theme.text_color.map(|color| Style::default().fg(color)).unwrap_or_default()
+    fn as_text_style(&self) -> StyleConfig {
+        self.theme
+            .text_color
+            .map(|color| StyleConfig { fg: Some(color), ..StyleConfig::default() })
+            .unwrap_or_default()
     }
 
     fn as_styled_scrollbar(&self) -> Option<ratatui::widgets::Scrollbar<'_>> {
