@@ -372,8 +372,7 @@ impl TryFrom<UiConfigFile> for UiConfig {
     fn try_from(value: UiConfigFile) -> Result<Self, Self::Error> {
         let fg_color = StringColor(value.text_color.clone()).to_color()?;
         let bg_color = StringColor(value.background_color).to_color()?;
-        let header_bg_color = StringColor(value.header_background_color).to_color()?.or(bg_color);
-        let border = value.borders_style.to_config_or(Some(Color::White), None)?;
+        let border_style = value.borders_style.to_config_or(Some(Color::White), None)?;
         let border_set_lib: BorderSetLib = value.border_symbol_sets.try_into()?;
         let components = convert_components(value.components, &border_set_lib)?;
         let current_style = value.current_item_style.to_config_or(None, None)?;
@@ -392,15 +391,17 @@ impl TryFrom<UiConfigFile> for UiConfig {
                 .or(bg_color),
             modal_backdrop: value.modal_backdrop,
             text_color: fg_color,
-            header_background_color: header_bg_color,
-            borders_style: border,
+            header_background_color: StringColor(value.header_background_color)
+                .to_color()?
+                .or(bg_color),
+            borders_style: border_style,
             highlight_border_style: value
                 .highlight_border_style
-                .to_config_or(border.fg, border.bg)?,
+                .to_config_or(border_style.fg, border_style.bg)?,
             symbols: value.symbols.into(),
             scrollbar: value
                 .scrollbar
-                .map(|sc| sc.into_config(border.fg.unwrap_or(Color::White)))
+                .map(|sc| sc.into_config(border_style.fg.unwrap_or(Color::White)))
                 .transpose()?,
             progress_bar: value.progress_bar.into_config()?,
             song_table_format: TryInto::<QueueTableColumns>::try_into(value.song_table_format)?.0,
@@ -421,10 +422,7 @@ impl TryFrom<UiConfigFile> for UiConfig {
                     .tab_bar
                     .active_style
                     .to_config_or(current_style.fg.or(fg_color), current_style.bg)?,
-                inactive_style: value
-                    .tab_bar
-                    .inactive_style
-                    .to_config_or(fg_color, header_bg_color)?,
+                inactive_style: value.tab_bar.inactive_style.to_config_or(fg_color, None)?,
             },
             highlighted_item_style: highlighted_style,
             current_item_style: current_style,
