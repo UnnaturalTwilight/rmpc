@@ -963,20 +963,6 @@ impl Default for TabsFile {
                                             borders: BordersFile::NONE,
                                             panes: vec![
                                                 SubPaneFile {
-                                                    pane: PaneOrSplitFile::Pane(
-                                                        PaneTypeFile::Empty(),
-                                                    ),
-                                                    background_color: None,
-                                                    size: "1".to_string(),
-                                                    borders: BordersFile::NONE,
-                                                    border_style: None,
-                                                    border_active_style: None,
-                                                    border_title: Vec::new(),
-                                                    border_title_position: BorderTitlePosition::Top,
-                                                    border_title_alignment: Alignment::Left,
-                                                    border_symbols: BorderSymbolsFile::default(),
-                                                },
-                                                SubPaneFile {
                                                     size: "100%".to_string(),
                                                     background_color: None,
                                                     borders: BordersFile::NONE,

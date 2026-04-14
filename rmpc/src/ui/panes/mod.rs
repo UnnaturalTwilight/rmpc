@@ -400,6 +400,7 @@ impl Property<SongProperty> {
                             .and_then(|d| d.as_string(song, tag_separator, strategy, ctx))
                     })
             }
+            PropertyKindOrText::Empty() => None,
         }
     }
 }
@@ -706,6 +707,7 @@ impl Property<PropertyKind> {
                     None => self.default_as_span(song, ctx, tag_separator, strategy),
                 }
             }
+            PropertyKindOrText::Empty() => None,
         }
     }
 }
