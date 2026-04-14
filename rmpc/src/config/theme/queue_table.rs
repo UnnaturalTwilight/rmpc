@@ -193,6 +193,23 @@ impl Default for QueueTableColumnsFile {
                 alignment: Some(Alignment::Right),
                 scroll_speed: None,
             },
+            SongTableColumnFile {
+                prop: PropertyFile {
+                    kind: PropertyKindFileOrText::Text(String::new()),
+                    style: Some(StyleFile {
+                        fg: None,
+                        bg: Some("red".to_string()),
+                        modifiers: None,
+                    }),
+                    default: None,
+                },
+                label: None,
+                label_prop: None,
+                width_percent: None,
+                width: Some("0".to_string()),
+                alignment: None,
+                scroll_speed: None,
+            }
         ])
     }
 }
@@ -225,6 +242,7 @@ impl TryFrom<QueueTableColumnsFile> for QueueTableColumns {
                             PropertyKindOrText::Transform { .. } => text(String::new()),
                             PropertyKindOrText::Property(prop) => text(prop.to_string()),
                             PropertyKindOrText::Group(_) => text(String::new()),
+                            PropertyKindOrText::Empty() => {text(String::new())},
                         },
                     };
 
@@ -296,6 +314,7 @@ impl PropertyFile<SongPropertyFile> {
                         .try_collect()?;
                     PropertyKindOrText::Group(res)
                 }
+                PropertyKindFileOrText::Empty() => PropertyKindOrText::Empty(),
             },
             style: Some(self.style.to_config_or(None, None)?),
             default: self
@@ -325,6 +344,7 @@ impl PropertyFile<SongPropertyFile> {
                         .try_collect()?;
                     PropertyKindOrText::Group(res)
                 }
+                PropertyKindFileOrText::Empty() => PropertyKindOrText::Empty(),
             },
             style: Some(self.style.to_config_or(None, None)?),
             default: self
