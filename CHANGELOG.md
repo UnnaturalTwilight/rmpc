@@ -30,6 +30,8 @@ All notable changes to this project will be documented in this file.
 - Song info modal now respects `duration_format`
 - Add `-v`/`--version` args to cli
 - `SelectAlbum` queue keybind
+- **Breaking** `song_table_format` now suports `Empty()` panes. This replaces the implicit padding
+  between the Queue and scroll bar
 
 ### Changed
 
