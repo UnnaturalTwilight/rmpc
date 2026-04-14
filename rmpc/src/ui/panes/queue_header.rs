@@ -104,8 +104,7 @@ impl QueueHeaderPane {
 
     pub fn evaluate_content(format: &Property<SongProperty>, ctx: &Ctx) -> Vec<(u32, String)> {
         match &format.kind {
-            PropertyKindOrText::Text(_)
-            | PropertyKindOrText::Empty() => {
+            PropertyKindOrText::Text(_) | PropertyKindOrText::Empty() => {
                 // Do nothing, everything is a constant text
                 Vec::new()
             }
