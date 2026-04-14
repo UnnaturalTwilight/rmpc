@@ -10,6 +10,8 @@ All notable changes to this project will be documented in this file.
 - **Breaking** `ExternalCommand` can now have arguments supplied at runtime. This will break your
   existing keybinds if they contained either `{` or `}`. You will now need to escape these by
   doubling them up: `{{` and `}}`.
+- **Breaking** `song_table_format` now suports `Empty()` panes. This replaces the implicit padding
+  between the Queue and scroll bar
 - `extra_yt_dlp_args` to pass in more things to yt-dlp if required
 - `scroll_speed` to `song_table_format`
 - `album_art.custom_loader` to allow for more flexibility when choosing the album art image
