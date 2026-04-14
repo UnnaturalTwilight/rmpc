@@ -26,6 +26,8 @@ All notable changes to this project will be documented in this file.
 - Added additional styling properties for symbols: `marker_style`, `marker_current_style`,
   `song_current_style`, `dir_current_style`, `playlist_current_style`,`marker_highlighted_style`,
   `song_highlighted_style`, `dir_highlighted_style` and `playlist_highlighted_style`
+- **Breaking** `song_table_format` now suports `Empty()` panes. This replaces the implicit padding
+  between the Queue and scroll bar
 
 ### Changed
 
@@ -46,6 +48,7 @@ keybinds
 - password and address override parameter not working for rmpc's CLI
 - Config hot reload ignoring disable flag
 - `debuginfo` command no longer shows incorrect errors about missing components
+- `current_item_style` and `highlighted_item_style` merge on top of `text_color` in modals and search
 
 
 ## [0.11.0] - 2026-02-01
