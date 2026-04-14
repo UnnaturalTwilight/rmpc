@@ -211,19 +211,7 @@
                                     size: "100%",
                                     borders: "LEFT | RIGHT | BOTTOM",
                                     border_symbols: Rounded,
-                                    pane: Split(
-                                        direction: Horizontal,
-                                        panes: [
-                                            (
-                                                size: "1",
-                                                pane: Pane(Empty())
-                                            ),
-                                            (
-                                                size: "100%",
-                                                pane: Pane(Queue)
-                                            ),
-                                        ]
-                                    )
+                                    pane: Pane(Queue)
                                 ),
                             ],
                         )
