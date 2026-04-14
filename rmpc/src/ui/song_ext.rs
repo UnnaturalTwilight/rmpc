@@ -397,6 +397,7 @@ impl SongExt for Song {
                 PropertyKindOrText::Transform(Transform::Replace { .. }) => format
                     .as_string(Some(self), "", TagResolutionStrategy::All, ctx)
                     .map(|v| v.to_lowercase().contains(&filter.to_lowercase())),
+                PropertyKindOrText::Empty() => None,
             };
             if match_found.is_some_and(|v| v) {
                 return true;
@@ -518,6 +519,7 @@ impl SongExt for Song {
                             .and_then(|format| self.as_line(format, tag_separator, strategy, ctx))
                     })
             }
+            PropertyKindOrText::Empty() => None,
         }
     }
 
