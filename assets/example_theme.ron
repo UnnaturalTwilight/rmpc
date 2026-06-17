@@ -108,6 +108,10 @@
             width: "15%",
             alignment: Right,
         ),
+        (
+            prop: (kind: Empty()),
+            width: "0",
+        ),
     ],
     layout: Split(
         direction: Vertical,
@@ -197,12 +201,12 @@
         ),
         "elapsed_and_bitrate": Pane(Property(
             content: [
-                (kind: Property(Status(Elapsed))), 
-                (kind: Text(" / ")), 
-                (kind: Property(Status(Duration))), 
+                (kind: Property(Status(Elapsed))),
+                (kind: Text(" / ")),
+                (kind: Property(Status(Duration))),
                 (kind: Group([
-                    (kind: Text(" (")), 
-                    (kind: Property(Status(Bitrate))), 
+                    (kind: Text(" (")),
+                    (kind: Property(Status(Bitrate))),
                     (kind: Text(" kbps)")),
                 ])),
             ],
