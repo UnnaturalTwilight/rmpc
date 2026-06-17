@@ -10,7 +10,7 @@ local M = {
 
 local function last_path_segment(s)
     local before = s:match("^(.*)/[^/]*$")
-    return before or s
+    return before or ""
 end
 
 local function replace_after_last_dot(s, replacement)
