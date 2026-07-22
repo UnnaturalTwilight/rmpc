@@ -53,10 +53,11 @@ impl<T: std::fmt::Debug + DirStackItem + Clone + Send> Browser<T> {
 
     pub fn with_borders(
         mut self,
+        borders: Option<Borders>,
         border_style: Option<Style>,
         border_symbols: Option<BorderSymbols>,
     ) -> Self {
-        self.borders = true;
+        self.borders = borders.is_some(); // TODO !! Proper parseing for all that fun
         self.border_style = border_style;
         self.border_symbols = border_symbols.unwrap_or_default();
         self

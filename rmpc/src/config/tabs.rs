@@ -180,6 +180,7 @@ pub enum PaneTypeFile {
         limit: Option<u32>,
         #[serde(default)]
         sort: StickerPaneSort,
+        borders: Option<BordersFile>,
         border_style: Option<StyleFile>,
         border_symbols: Option<BorderSymbolsFile>,
         column_widths: Option<Vec<u16>>,
@@ -209,6 +210,7 @@ pub enum PaneTypeFile {
         separator: Option<String>,
         #[serde(default)]
         levels: Vec<BrowserTagConfigFile>,
+        borders: Option<BordersFile>,
         border_style: Option<StyleFile>,
         border_symbols: Option<BorderSymbolsFile>,
         column_widths: Option<Vec<u16>>,
@@ -234,6 +236,7 @@ pub enum PaneType {
         format: Vec<Property<SongProperty>>,
         limit: Option<u32>,
         sort: StickerPaneSort,
+        borders: Option<Borders>,
         border_style: Option<Style>,
         border_symbols: Option<BorderSymbols>,
         column_widths: Option<[u16; 3]>,
@@ -257,6 +260,7 @@ pub enum PaneType {
     },
     Browser {
         levels: Vec<BrowserTagConfig>,
+        borders: Option<Borders>,
         border_style: Option<Style>,
         border_symbols: Option<BorderSymbols>,
         column_widths: Option<[u16; 3]>,
@@ -324,6 +328,7 @@ impl TryFrom<PaneTypeFile> for PaneType {
                 format,
                 limit,
                 sort,
+                borders,
                 border_style,
                 border_symbols,
                 column_widths,
@@ -336,6 +341,7 @@ impl TryFrom<PaneTypeFile> for PaneType {
                     .try_collect()?,
                 limit,
                 sort,
+                borders: if let Some(borders) = borders { Some(borders.try_into()?) } else { None },
                 border_style: border_style
                     .as_ref()
                     .map(|s| s.to_config_or(None, None))
@@ -382,6 +388,7 @@ impl TryFrom<PaneTypeFile> for PaneType {
                 root_tag,
                 separator: _,
                 levels,
+                borders,
                 border_style,
                 border_symbols,
                 column_widths,
@@ -413,6 +420,11 @@ impl TryFrom<PaneTypeFile> for PaneType {
                                 skip: CollapseLevel::default(),
                             },
                         ],
+                        borders: if let Some(borders) = borders {
+                            Some(borders.try_into()?)
+                        } else {
+                            None
+                        },
                         border_style: border_style
                             .as_ref()
                             .map(|s| s.to_config_or(None, None))
@@ -439,6 +451,11 @@ impl TryFrom<PaneTypeFile> for PaneType {
 
                     PaneType::Browser {
                         levels: levels.into_iter().map(TryInto::try_into).try_collect()?,
+                        borders: if let Some(borders) = borders {
+                            Some(borders.try_into()?)
+                        } else {
+                            None
+                        },
                         border_style: border_style
                             .as_ref()
                             .map(|s| s.to_config_or(None, None))

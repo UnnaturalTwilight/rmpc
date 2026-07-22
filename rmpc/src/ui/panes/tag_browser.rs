@@ -1,7 +1,12 @@
 use anyhow::{Context, Result};
 use enum_map::EnumMap;
 use itertools::Itertools;
-use ratatui::{Frame, prelude::Rect, style::Style, widgets::ListState};
+use ratatui::{
+    Frame,
+    prelude::Rect,
+    style::Style,
+    widgets::{Borders, ListState},
+};
 use rmpc_mpd::{
     client::Client,
     commands::{Song, list::MpdGroupedList, metadata_tag::MetadataTag},
@@ -55,6 +60,7 @@ impl TagBrowserPane {
         _ctx: &Ctx,
         tags: Vec<BrowserTagConfig>,
         target_pane: PaneType,
+        borders: Option<Borders>,
         border_style: Option<Style>,
         border_symbols: Option<BorderSymbols>,
         column_widths: Option<[u16; 3]>,
@@ -63,8 +69,8 @@ impl TagBrowserPane {
         if column_widths.is_some() {
             browser = browser.with_column_widths(column_widths);
         }
-        if border_symbols.is_some() {
-            browser = browser.with_borders(border_style, border_symbols);
+        if borders.is_some() {
+            browser = browser.with_borders(borders, border_style, border_symbols);
         }
         Self { tags, target_pane, stack: DirStack::default(), browser, initialized: false }
     }
@@ -668,6 +674,7 @@ mod tests {
             None,
             None,
             None,
+            None,
         );
 
         pane.process_songs(
@@ -686,6 +693,7 @@ mod tests {
             &ctx,
             vec![tag("artist"), album_tag(None, None)],
             PaneType::Artists,
+            None,
             None,
             None,
             None,
@@ -710,6 +718,7 @@ mod tests {
             &ctx,
             vec![tag("artist"), album_tag(None, Some(&["date"]))],
             PaneType::Artists,
+            None,
             None,
             None,
             None,
@@ -738,6 +747,7 @@ mod tests {
             None,
             None,
             None,
+            None,
         );
         let artist = String::from("artist");
         let songs = vec![
@@ -763,6 +773,7 @@ mod tests {
                 album_tags(Some(vec!["date".to_string(), "album".to_string()]), Some(&["date"])),
             ],
             PaneType::Artists,
+            None,
             None,
             None,
             None,
@@ -796,6 +807,7 @@ mod tests {
             None,
             None,
             None,
+            None,
         );
         let artist = String::from("artist");
         let songs = vec![
@@ -817,6 +829,7 @@ mod tests {
             &ctx,
             vec![tag("artist"), album_tag(Some("date"), Some(&["originaldate"]))],
             PaneType::Artists,
+            None,
             None,
             None,
             None,
@@ -845,6 +858,7 @@ mod tests {
             None,
             None,
             None,
+            None,
         );
         let artist = String::from("artist");
         let songs = vec![
@@ -865,6 +879,7 @@ mod tests {
             &ctx,
             vec![tag("artist"), album_tag(Some("date"), Some(&["originaldate"]))],
             PaneType::Artists,
+            None,
             None,
             None,
             None,
@@ -967,6 +982,7 @@ mod tests {
                 None,
                 None,
                 None,
+                None,
             );
 
             pane.process_grouped_list(
@@ -992,6 +1008,7 @@ mod tests {
                 &ctx,
                 vec![grouped_album_sorted_by_date_tag()],
                 PaneType::Albums,
+                None,
                 None,
                 None,
                 None,
@@ -1035,6 +1052,7 @@ mod tests {
                 None,
                 None,
                 None,
+                None,
             );
 
             pane.process_grouped_list(
@@ -1063,6 +1081,7 @@ mod tests {
                 &ctx,
                 vec![grouped_album_sorted_by_date_tag()],
                 PaneType::Albums,
+                None,
                 None,
                 None,
                 None,
@@ -1112,6 +1131,7 @@ mod tests {
                 None,
                 None,
                 None,
+                None,
             );
 
             pane.process_grouped_list(MpdGroupedList(vec![]), &ctx);
@@ -1126,6 +1146,7 @@ mod tests {
                 &ctx,
                 vec![grouped_album_by_artist_tag()],
                 PaneType::Albums,
+                None,
                 None,
                 None,
                 None,
@@ -1166,6 +1187,7 @@ mod tests {
                 None,
                 None,
                 None,
+                None,
             );
             let songs = vec![song("album_a", "2020"), song("album_b", "2021")];
             pane.stack.insert(Path::new(), vec![DirOrSong::name_only("artist".to_string())]);
@@ -1189,6 +1211,7 @@ mod tests {
                 None,
                 None,
                 None,
+                None,
             );
             let songs = vec![song("album_a", "2020"), song("album_b", "2021")];
             pane.stack.insert(Path::new(), vec![DirOrSong::name_only("artist".to_string())]);
@@ -1209,6 +1232,7 @@ mod tests {
                 &ctx,
                 vec![tag("artist"), album_tag(None, None)],
                 PaneType::Artists,
+                None,
                 None,
                 None,
                 None,
@@ -1236,6 +1260,7 @@ mod tests {
                 None,
                 None,
                 None,
+                None,
             );
             pane.stack.insert(Path::new(), vec![DirOrSong::name_only("artist".to_string())]);
             pane.process_songs("artist".to_string(), vec![], &ctx);
@@ -1260,6 +1285,7 @@ mod tests {
                 &ctx,
                 vec![tag("artist"), album_tag(None, None), disc_tag],
                 PaneType::Artists,
+                None,
                 None,
                 None,
                 None,
@@ -1295,6 +1321,7 @@ mod tests {
                 &ctx,
                 vec![tag("artist"), album_tag(None, None)],
                 PaneType::Artists,
+                None,
                 None,
                 None,
                 None,

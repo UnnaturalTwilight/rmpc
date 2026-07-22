@@ -18,7 +18,12 @@ use self::{
     scrollbar::ScrollbarConfig,
     style::{StringColor, ToConfigOr},
 };
-use crate::config::theme::borders::{BorderSetLib, BorderSetLibFile};
+use crate::config::theme::borders::{
+    BorderSetLib,
+    BorderSetLibFile,
+    BorderSymbols,
+    BorderSymbolsFile,
+};
 
 pub mod borders;
 pub mod cava;
@@ -78,6 +83,7 @@ pub struct UiConfig {
     pub lyrics: LyricsConfig,
     pub cava: CavaTheme,
     pub border_symbol_sets: BorderSetLib,
+    pub border_symbols: BorderSymbols,
 }
 
 impl Default for UiConfig {
@@ -124,6 +130,7 @@ pub struct UiConfigFile {
     pub(super) lyrics: LyricsConfigFile,
     pub(super) cava: CavaThemeFile,
     pub border_symbol_sets: BorderSetLibFile,
+    pub border_symbols: BorderSymbolsFile,
 }
 
 impl Default for UiConfigFile {
@@ -210,6 +217,7 @@ impl Default for UiConfigFile {
             lyrics: LyricsConfigFile::default(),
             cava: CavaThemeFile::default(),
             border_symbol_sets: BorderSetLibFile::default(),
+            border_symbols: BorderSymbolsFile::Rounded,
         }
     }
 }
@@ -436,6 +444,7 @@ impl TryFrom<UiConfigFile> for UiConfig {
         let header_bg_color = StringColor(value.header_background_color).to_color()?.or(bg_color);
         let border = value.borders_style.to_config_or(None, None)?;
         let border_set_lib: BorderSetLib = value.border_symbol_sets.try_into()?;
+        let border_symbols = value.border_symbols.into_symbols(&BorderSetLib::default())?;
         let components = convert_components(value.components, &border_set_lib)?;
         let current_style = value.current_item_style.to_config_or(None, None)?;
         let highlighted_style = value.highlighted_item_style.to_config_or(None, None)?;
@@ -504,6 +513,7 @@ impl TryFrom<UiConfigFile> for UiConfig {
             level_styles: value.level_styles.try_into()?,
             lyrics: value.lyrics.into(),
             border_symbol_sets: border_set_lib,
+            border_symbols,
         })
     }
 }

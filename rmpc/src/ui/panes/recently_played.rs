@@ -2,7 +2,12 @@ use std::time::Duration;
 
 use anyhow::Result;
 use enum_map::EnumMap;
-use ratatui::{Frame, prelude::Rect, style::Style, widgets::ListState};
+use ratatui::{
+    Frame,
+    prelude::Rect,
+    style::Style,
+    widgets::{Borders, ListState},
+};
 use rmpc_mpd::{
     client::Client,
     commands::Song,
@@ -64,6 +69,7 @@ impl StickerPane {
         format: Vec<Property<SongProperty>>,
         limit: Option<u32>,
         _ctx: &Ctx,
+        borders: Option<Borders>,
         border_style: Option<Style>,
         border_symbols: Option<BorderSymbols>,
         column_widths: Option<[u16; 3]>,
@@ -75,8 +81,8 @@ impl StickerPane {
         if column_widths.is_some() {
             browser = browser.with_column_widths(column_widths);
         }
-        if border_symbols.is_some() {
-            browser = browser.with_borders(border_style, border_symbols);
+        if borders.is_some() {
+            browser = browser.with_borders(borders, border_style, border_symbols);
         }
         Self {
             sticker,
