@@ -203,6 +203,7 @@ impl<'panes> PaneContainer<'panes> {
                 }],
                 PaneType::Albums,
                 None,
+                None,
                 Some(BorderSymbols::default()),
                 None,
             ),
@@ -235,6 +236,7 @@ impl<'panes> PaneContainer<'panes> {
                     },
                 ],
                 PaneType::Artists,
+                None,
                 None,
                 Some(BorderSymbols::default()),
                 None,
@@ -269,6 +271,7 @@ impl<'panes> PaneContainer<'panes> {
                 ],
                 PaneType::AlbumArtists,
                 None,
+                None,
                 Some(BorderSymbols::default()),
                 None,
             ),
@@ -297,19 +300,24 @@ impl<'panes> PaneContainer<'panes> {
             .flat_map(|tab| tab.panes.panes_iter())
             .chain(ctx.config.theme.layout.panes_iter())
             .filter_map(|pane| match &pane.pane {
-                PaneType::Browser { levels, border_style, border_symbols, column_widths } => {
-                    Some((
+                PaneType::Browser {
+                    levels,
+                    borders,
+                    border_style,
+                    border_symbols,
+                    column_widths,
+                } => Some((
+                    pane.pane.clone(),
+                    Box::new(TagBrowserPane::new(
+                        ctx,
+                        levels.clone(),
                         pane.pane.clone(),
-                        Box::new(TagBrowserPane::new(
-                            ctx,
-                            levels.clone(),
-                            pane.pane.clone(),
-                            border_style.clone(),
-                            border_symbols.clone(),
-                            column_widths.clone(),
-                        )) as Box<dyn BoxedPane>,
-                    ))
-                }
+                        borders.clone(),
+                        border_style.clone(),
+                        border_symbols.clone(),
+                        column_widths.clone(),
+                    )) as Box<dyn BoxedPane>,
+                )),
                 PaneType::Volume { kind } => Some((
                     pane.pane.clone(),
                     Box::new(VolumePane::new(kind.clone())) as Box<dyn BoxedPane>,
@@ -319,6 +327,7 @@ impl<'panes> PaneContainer<'panes> {
                     format,
                     limit,
                     sort,
+                    borders,
                     border_style,
                     border_symbols,
                     column_widths,
@@ -331,6 +340,7 @@ impl<'panes> PaneContainer<'panes> {
                         format.clone(),
                         *limit,
                         ctx,
+                        borders.clone(),
                         border_style.clone(),
                         border_symbols.clone(),
                         column_widths.clone(),
