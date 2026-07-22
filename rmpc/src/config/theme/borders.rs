@@ -37,7 +37,7 @@ pub enum BorderSetLibFileEnum {
 }
 
 // Used at runtime as a custom border symbol set
-#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Hash, Serialize, Deserialize, PartialEq, Eq)]
 pub struct BorderSet {
     top_left: String,
     top_right: String,
@@ -125,7 +125,7 @@ pub enum BorderSymbolsFile {
     Library(String),
 }
 
-#[derive(Debug, Default, Clone, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Hash, PartialEq, Eq)]
 pub enum BorderSymbols {
     #[default]
     Plain,
