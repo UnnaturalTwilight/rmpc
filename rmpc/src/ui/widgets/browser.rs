@@ -73,10 +73,16 @@ where
 
         let current = state.current().to_list_items(song_format, ctx);
 
+        let column_widths = if state.previous_mut().is_some() {
+            config.theme.column_widths
+        } else {
+            [0, config.theme.column_widths[0] + config.theme.column_widths[1], config.theme.column_widths[2]]
+        };
+
         let [previous_area, current_area, preview_area] = *Layout::horizontal([
-            Constraint::Percentage(config.theme.column_widths[0]),
-            Constraint::Percentage(config.theme.column_widths[1]),
-            Constraint::Percentage(config.theme.column_widths[2]),
+            Constraint::Percentage(column_widths[0]),
+            Constraint::Percentage(column_widths[1]),
+            Constraint::Percentage(column_widths[2]),
         ])
         .split(area) else {
             return;
