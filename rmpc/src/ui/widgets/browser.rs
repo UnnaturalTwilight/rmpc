@@ -6,7 +6,10 @@ use ratatui::{
 };
 
 use crate::{
-    config::theme::properties::{Property, SongProperty},
+    config::theme::{
+        borders::BorderSymbols,
+        properties::{Property, SongProperty},
+    },
     ctx::Ctx,
     ui::dirstack::{Dir, DirStack, DirStackItem},
 };
@@ -24,6 +27,10 @@ pub struct Browser<T: std::fmt::Debug + DirStackItem + Clone + Send> {
     state_type_marker: std::marker::PhantomData<T>,
     pub areas: EnumMap<BrowserArea, Rect>,
     pub song_format: Option<Vec<Property<SongProperty>>>,
+    borders: bool,
+    border_style: Option<Style>,
+    border_symbols: BorderSymbols,
+    column_widths: Option<[u16; 3]>,
 }
 
 impl<T: std::fmt::Debug + DirStackItem + Clone + Send> Browser<T> {
@@ -32,6 +39,10 @@ impl<T: std::fmt::Debug + DirStackItem + Clone + Send> Browser<T> {
             state_type_marker: std::marker::PhantomData,
             areas: EnumMap::default(),
             song_format: None,
+            borders: false,
+            border_style: None,
+            border_symbols: BorderSymbols::default(),
+            column_widths: None,
         }
     }
 
@@ -39,13 +50,32 @@ impl<T: std::fmt::Debug + DirStackItem + Clone + Send> Browser<T> {
         self.song_format = Some(format);
         self
     }
+
+    pub fn with_borders(
+        mut self,
+        border_style: Option<Style>,
+        border_symbols: Option<BorderSymbols>,
+    ) -> Self {
+        self.borders = true;
+        self.border_style = border_style;
+        self.border_symbols = border_symbols.unwrap_or_default();
+        self
+    }
+
+    pub fn with_column_widths(mut self, column_widths: Option<[u16; 3]>) -> Self {
+        self.column_widths = column_widths;
+        self
+    }
 }
+// TODO !!
+#[allow(dead_code)]
 const MIDDLE_COLUMN_SYMBOLS: symbols::border::Set = symbols::border::Set {
     top_right: symbols::line::NORMAL.horizontal_down,
     bottom_right: symbols::line::NORMAL.horizontal_up,
     ..symbols::border::PLAIN
 };
-
+// TODO !!
+#[allow(dead_code)]
 const LEFT_COLUMN_SYMBOLS: symbols::border::Set = symbols::border::Set {
     bottom_right: symbols::line::NORMAL.horizontal_up,
     top_right: symbols::line::NORMAL.horizontal_down,
@@ -68,16 +98,13 @@ where
             .song_format
             .as_deref()
             .unwrap_or(ctx.config.theme.browser_song_format.0.as_slice());
-        let scrollbar_margin = Margin { vertical: 0, horizontal: config.theme.draw_borders.into() };
+        let border_style = self.border_style.unwrap_or_else(|| ctx.config.as_border_style());
+        let scrollbar_margin = Margin { vertical: 0, horizontal: self.borders.into() };
         let column_right_padding: u16 = config.theme.scrollbar.is_some().into();
 
         let current = state.current().to_list_items(song_format, ctx);
 
-        let column_widths = if state.previous_mut().is_some() {
-            config.theme.column_widths
-        } else {
-            [0, config.theme.column_widths[0] + config.theme.column_widths[1], config.theme.column_widths[2]]
-        };
+        let column_widths = self.column_widths.unwrap_or(config.theme.column_widths);
 
         let [previous_area, current_area, preview_area] = *Layout::horizontal([
             Constraint::Percentage(column_widths[0]),
@@ -137,18 +164,19 @@ where
             prev_state.set_content_and_viewport_len(items.len(), previous_area.height.into());
 
             let previous = List::new(items).style(config.as_text_style());
-            let mut block = if config.theme.draw_borders {
-                Block::default()
-                    .borders(Borders::RIGHT)
-                    .border_style(config.as_border_style())
-                    .padding(Padding::new(0, column_right_padding, 0, 0))
-                    .border_set(LEFT_COLUMN_SYMBOLS)
-            } else {
-                Block::default().padding(Padding::new(0, column_right_padding, 0, 0))
+            let block = {
+                let mut b = Block::default();
+                if self.borders {
+                    b = b
+                        .borders(Borders::RIGHT)
+                        .border_style(border_style)
+                        .border_set((&self.border_symbols).into());
+                }
+                if let Some(title) = title {
+                    b = b.title(title);
+                }
+                b.padding(Padding::new(0, column_right_padding, 0, 0))
             };
-            if let Some(title) = title {
-                block = block.title(title);
-            }
 
             let inner_block = block.inner(previous_area);
             self.areas[BrowserArea::Previous] = inner_block;
@@ -178,11 +206,11 @@ where
 
             let block = {
                 let mut b = Block::default();
-                if config.theme.draw_borders {
+                if self.borders {
                     b = b
                         .borders(Borders::RIGHT)
-                        .border_style(config.as_border_style())
-                        .border_set(MIDDLE_COLUMN_SYMBOLS);
+                        .border_style(border_style)
+                        .border_set((&self.border_symbols).into());
                 }
                 if let Some(title) = title {
                     b = b.title(title);

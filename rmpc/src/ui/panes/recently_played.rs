@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use anyhow::Result;
 use enum_map::EnumMap;
-use ratatui::{Frame, prelude::Rect, widgets::ListState};
+use ratatui::{Frame, prelude::Rect, style::Style, widgets::ListState};
 use rmpc_mpd::{
     client::Client,
     commands::Song,
@@ -15,7 +15,10 @@ use crate::{
     MpdQueryResult,
     config::{
         tabs::{PaneType, StickerPaneSort},
-        theme::properties::{Property, SongProperty},
+        theme::{
+            borders::BorderSymbols,
+            properties::{Property, SongProperty},
+        },
     },
     ctx::Ctx,
     shared::{
@@ -61,12 +64,20 @@ impl StickerPane {
         format: Vec<Property<SongProperty>>,
         limit: Option<u32>,
         _ctx: &Ctx,
+        border_style: Option<Style>,
+        border_symbols: Option<BorderSymbols>,
+        column_widths: Option<[u16; 3]>,
     ) -> Self {
-        let browser = if format.is_empty() {
-            Browser::new()
-        } else {
-            Browser::new().with_song_format(format)
-        };
+        let mut browser = Browser::new();
+        if !format.is_empty() {
+            browser = browser.with_song_format(format);
+        }
+        if column_widths.is_some() {
+            browser = browser.with_column_widths(column_widths);
+        }
+        if border_symbols.is_some() {
+            browser = browser.with_borders(border_style, border_symbols);
+        }
         Self {
             sticker,
             sort,

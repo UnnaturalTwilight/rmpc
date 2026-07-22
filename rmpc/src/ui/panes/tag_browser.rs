@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use enum_map::EnumMap;
 use itertools::Itertools;
-use ratatui::{Frame, prelude::Rect, widgets::ListState};
+use ratatui::{Frame, prelude::Rect, style::Style, widgets::ListState};
 use rmpc_mpd::{
     client::Client,
     commands::{Song, list::MpdGroupedList, metadata_tag::MetadataTag},
@@ -15,7 +15,7 @@ use crate::{
     config::{
         sort_mode::{SortMode, SortOptions},
         tabs::{BrowserTagConfig, CollapseLevel, PaneType},
-        theme::properties::SongProperty,
+        theme::{borders::BorderSymbols, properties::SongProperty},
     },
     ctx::Ctx,
     shared::{cmp::StringCompare, id, keys::ActionEvent, mouse_event::MouseEvent},
@@ -51,14 +51,22 @@ struct SongGroup {
 }
 
 impl TagBrowserPane {
-    pub fn new(tags: Vec<BrowserTagConfig>, target_pane: PaneType, _ctx: &Ctx) -> Self {
-        Self {
-            tags,
-            target_pane,
-            stack: DirStack::default(),
-            browser: Browser::new(),
-            initialized: false,
+    pub fn new(
+        _ctx: &Ctx,
+        tags: Vec<BrowserTagConfig>,
+        target_pane: PaneType,
+        border_style: Option<Style>,
+        border_symbols: Option<BorderSymbols>,
+        column_widths: Option<[u16; 3]>,
+    ) -> Self {
+        let mut browser = Browser::new();
+        if column_widths.is_some() {
+            browser = browser.with_column_widths(column_widths);
         }
+        if border_symbols.is_some() {
+            browser = browser.with_borders(border_style, border_symbols);
+        }
+        Self { tags, target_pane, stack: DirStack::default(), browser, initialized: false }
     }
 
     fn group_songs_by_tag(songs: Vec<Song>, tag: &BrowserTagConfig, ctx: &Ctx) -> Vec<SongGroup> {
@@ -653,8 +661,14 @@ mod tests {
             }],
             skip: CollapseLevel::default(),
         };
-        let mut pane =
-            TagBrowserPane::new(vec![tag("artist"), album_level], PaneType::Artists, &ctx);
+        let mut pane = TagBrowserPane::new(
+            &ctx,
+            vec![tag("artist"), album_level],
+            PaneType::Artists,
+            None,
+            None,
+            None,
+        );
 
         pane.process_songs(
             "artist".to_string(),
@@ -669,9 +683,12 @@ mod tests {
     fn albums_no_date_sort_name(mut ctx: Ctx, config: Config) {
         ctx.config = std::sync::Arc::new(config);
         let mut pane = TagBrowserPane::new(
+            &ctx,
             vec![tag("artist"), album_tag(None, None)],
             PaneType::Artists,
-            &ctx,
+            None,
+            None,
+            None,
         );
         let artist = String::from("artist");
         let songs = vec![
@@ -690,9 +707,12 @@ mod tests {
     fn albums_split_date_sort_name(mut ctx: Ctx, config: Config) {
         ctx.config = std::sync::Arc::new(config);
         let mut pane = TagBrowserPane::new(
+            &ctx,
             vec![tag("artist"), album_tag(None, Some(&["date"]))],
             PaneType::Artists,
-            &ctx,
+            None,
+            None,
+            None,
         );
         let artist = String::from("artist");
         let songs = vec![
@@ -712,9 +732,12 @@ mod tests {
     fn albums_split_date_sort_date(mut ctx: Ctx, config: Config) {
         ctx.config = std::sync::Arc::new(config);
         let mut pane = TagBrowserPane::new(
+            &ctx,
             vec![tag("artist"), album_tag(Some("date"), Some(&["date"]))],
             PaneType::Artists,
-            &ctx,
+            None,
+            None,
+            None,
         );
         let artist = String::from("artist");
         let songs = vec![
@@ -734,12 +757,15 @@ mod tests {
     fn albums_split_date_sort_date_and_then_sort_name(mut ctx: Ctx, config: Config) {
         ctx.config = std::sync::Arc::new(config);
         let mut pane = TagBrowserPane::new(
+            &ctx,
             vec![
                 tag("artist"),
                 album_tags(Some(vec!["date".to_string(), "album".to_string()]), Some(&["date"])),
             ],
             PaneType::Artists,
-            &ctx,
+            None,
+            None,
+            None,
         );
         let artist = String::from("artist");
         let songs = vec![
@@ -764,9 +790,12 @@ mod tests {
     fn albums_no_date_sort_date(mut ctx: Ctx, config: Config) {
         ctx.config = std::sync::Arc::new(config);
         let mut pane = TagBrowserPane::new(
+            &ctx,
             vec![tag("artist"), album_tag(Some("date"), None)],
             PaneType::Artists,
-            &ctx,
+            None,
+            None,
+            None,
         );
         let artist = String::from("artist");
         let songs = vec![
@@ -785,9 +814,12 @@ mod tests {
     fn albums_single_configured_tag(mut ctx: Ctx, config: Config) {
         ctx.config = std::sync::Arc::new(config);
         let mut pane = TagBrowserPane::new(
+            &ctx,
             vec![tag("artist"), album_tag(Some("date"), Some(&["originaldate"]))],
             PaneType::Artists,
-            &ctx,
+            None,
+            None,
+            None,
         );
         let artist = String::from("artist");
         let songs = vec![
@@ -807,9 +839,12 @@ mod tests {
     fn albums_tag_fallback(mut ctx: Ctx, config: Config) {
         ctx.config = std::sync::Arc::new(config);
         let mut pane = TagBrowserPane::new(
+            &ctx,
             vec![tag("artist"), album_tag(Some("date"), Some(&["originaldate", "date"]))],
             PaneType::Artists,
-            &ctx,
+            None,
+            None,
+            None,
         );
         let artist = String::from("artist");
         let songs = vec![
@@ -827,9 +862,12 @@ mod tests {
     fn albums_no_matching_tags(mut ctx: Ctx, config: Config) {
         ctx.config = std::sync::Arc::new(config);
         let mut pane = TagBrowserPane::new(
+            &ctx,
             vec![tag("artist"), album_tag(Some("date"), Some(&["originaldate"]))],
             PaneType::Artists,
-            &ctx,
+            None,
+            None,
+            None,
         );
         let artist = String::from("artist");
         let songs = vec![
@@ -922,8 +960,14 @@ mod tests {
         #[rstest]
         fn sorts_by_display_name_when_no_sort_by(mut ctx: Ctx, config: Config) {
             ctx.config = std::sync::Arc::new(config);
-            let mut pane =
-                TagBrowserPane::new(vec![grouped_album_by_artist_tag()], PaneType::Albums, &ctx);
+            let mut pane = TagBrowserPane::new(
+                &ctx,
+                vec![grouped_album_by_artist_tag()],
+                PaneType::Albums,
+                None,
+                None,
+                None,
+            );
 
             pane.process_grouped_list(
                 MpdGroupedList(vec![
@@ -945,9 +989,12 @@ mod tests {
         fn sorts_by_configured_tag(mut ctx: Ctx, config: Config) {
             ctx.config = std::sync::Arc::new(config);
             let mut pane = TagBrowserPane::new(
+                &ctx,
                 vec![grouped_album_sorted_by_date_tag()],
                 PaneType::Albums,
-                &ctx,
+                None,
+                None,
+                None,
             );
 
             pane.process_grouped_list(
@@ -982,9 +1029,12 @@ mod tests {
         fn root_item_filters_contain_all_tags(mut ctx: Ctx, config: Config) {
             ctx.config = std::sync::Arc::new(config);
             let mut pane = TagBrowserPane::new(
+                &ctx,
                 vec![grouped_album_sorted_by_date_tag()],
                 PaneType::Albums,
-                &ctx,
+                None,
+                None,
+                None,
             );
 
             pane.process_grouped_list(
@@ -1010,9 +1060,12 @@ mod tests {
         fn same_album_different_artists_are_separate_items(mut ctx: Ctx, config: Config) {
             ctx.config = std::sync::Arc::new(config);
             let mut pane = TagBrowserPane::new(
+                &ctx,
                 vec![grouped_album_sorted_by_date_tag()],
                 PaneType::Albums,
-                &ctx,
+                None,
+                None,
+                None,
             );
 
             pane.process_grouped_list(
@@ -1052,8 +1105,14 @@ mod tests {
         #[rstest]
         fn empty_records_produces_empty_stack(mut ctx: Ctx, config: Config) {
             ctx.config = std::sync::Arc::new(config);
-            let mut pane =
-                TagBrowserPane::new(vec![grouped_album_by_artist_tag()], PaneType::Albums, &ctx);
+            let mut pane = TagBrowserPane::new(
+                &ctx,
+                vec![grouped_album_by_artist_tag()],
+                PaneType::Albums,
+                None,
+                None,
+                None,
+            );
 
             pane.process_grouped_list(MpdGroupedList(vec![]), &ctx);
 
@@ -1063,8 +1122,14 @@ mod tests {
         #[rstest]
         fn second_call_replaces_previous_state(mut ctx: Ctx, config: Config) {
             ctx.config = std::sync::Arc::new(config);
-            let mut pane =
-                TagBrowserPane::new(vec![grouped_album_by_artist_tag()], PaneType::Albums, &ctx);
+            let mut pane = TagBrowserPane::new(
+                &ctx,
+                vec![grouped_album_by_artist_tag()],
+                PaneType::Albums,
+                None,
+                None,
+                None,
+            );
 
             pane.process_grouped_list(
                 MpdGroupedList(vec![grouped_record(&[
@@ -1095,9 +1160,12 @@ mod tests {
         fn in_song_returns_that_song(mut ctx: Ctx, config: Config) {
             ctx.config = std::sync::Arc::new(config);
             let mut pane = TagBrowserPane::new(
+                &ctx,
                 vec![tag("artist"), album_tag(None, None)],
                 PaneType::Artists,
-                &ctx,
+                None,
+                None,
+                None,
             );
             let songs = vec![song("album_a", "2020"), song("album_b", "2021")];
             pane.stack.insert(Path::new(), vec![DirOrSong::name_only("artist".to_string())]);
@@ -1115,9 +1183,12 @@ mod tests {
         fn at_root_returns_all_songs_under_artist(mut ctx: Ctx, config: Config) {
             ctx.config = std::sync::Arc::new(config);
             let mut pane = TagBrowserPane::new(
+                &ctx,
                 vec![tag("artist"), album_tag(None, None)],
                 PaneType::Artists,
-                &ctx,
+                None,
+                None,
+                None,
             );
             let songs = vec![song("album_a", "2020"), song("album_b", "2021")];
             pane.stack.insert(Path::new(), vec![DirOrSong::name_only("artist".to_string())]);
@@ -1135,9 +1206,12 @@ mod tests {
         fn at_artist_level_returns_only_that_albums_songs(mut ctx: Ctx, config: Config) {
             ctx.config = std::sync::Arc::new(config);
             let mut pane = TagBrowserPane::new(
+                &ctx,
                 vec![tag("artist"), album_tag(None, None)],
                 PaneType::Artists,
-                &ctx,
+                None,
+                None,
+                None,
             );
             let songs_a = vec![song("album_a", "2020"), song("album_a", "2020")];
             let songs_b = vec![song("album_b", "2021")];
@@ -1156,9 +1230,12 @@ mod tests {
         fn for_nonexistent_dir_returns_empty(mut ctx: Ctx, config: Config) {
             ctx.config = std::sync::Arc::new(config);
             let mut pane = TagBrowserPane::new(
+                &ctx,
                 vec![tag("artist"), album_tag(None, None)],
                 PaneType::Artists,
-                &ctx,
+                None,
+                None,
+                None,
             );
             pane.stack.insert(Path::new(), vec![DirOrSong::name_only("artist".to_string())]);
             pane.process_songs("artist".to_string(), vec![], &ctx);
@@ -1180,9 +1257,12 @@ mod tests {
                 skip: CollapseLevel::default(),
             };
             let mut pane = TagBrowserPane::new(
+                &ctx,
                 vec![tag("artist"), album_tag(None, None), disc_tag],
                 PaneType::Artists,
-                &ctx,
+                None,
+                None,
+                None,
             );
 
             let disc1_songs = vec![
@@ -1212,9 +1292,12 @@ mod tests {
         fn multiple_albums_each_return_their_own_songs(mut ctx: Ctx, config: Config) {
             ctx.config = std::sync::Arc::new(config);
             let mut pane = TagBrowserPane::new(
+                &ctx,
                 vec![tag("artist"), album_tag(None, None)],
                 PaneType::Artists,
-                &ctx,
+                None,
+                None,
+                None,
             );
             let songs_a = vec![song("album_a", "2020"), song("album_a", "2020")];
             let songs_b = vec![song("album_b", "2021")];

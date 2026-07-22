@@ -44,6 +44,7 @@ use crate::{
         },
         theme::{
             TagResolutionStrategy,
+            borders::BorderSymbols,
             properties::{
                 Property,
                 PropertyKind,
@@ -193,6 +194,7 @@ impl<'panes> PaneContainer<'panes> {
             logs: LogsPane::new(),
             directories: DirectoriesPane::new(ctx),
             albums: TagBrowserPane::new(
+                ctx,
                 vec![BrowserTagConfig {
                     group_by: vec![vec![SongProperty::Album]],
                     sort_by: None,
@@ -200,9 +202,12 @@ impl<'panes> PaneContainer<'panes> {
                     skip: CollapseLevel::default(),
                 }],
                 PaneType::Albums,
-                ctx,
+                None,
+                Some(BorderSymbols::default()),
+                None,
             ),
             artists: TagBrowserPane::new(
+                ctx,
                 vec![
                     BrowserTagConfig {
                         group_by: vec![vec![SongProperty::Artist]],
@@ -230,9 +235,12 @@ impl<'panes> PaneContainer<'panes> {
                     },
                 ],
                 PaneType::Artists,
-                ctx,
+                None,
+                Some(BorderSymbols::default()),
+                None,
             ),
             album_artists: TagBrowserPane::new(
+                ctx,
                 vec![
                     BrowserTagConfig {
                         group_by: vec![vec![SongProperty::Other("albumartist".to_string())]],
@@ -260,7 +268,9 @@ impl<'panes> PaneContainer<'panes> {
                     },
                 ],
                 PaneType::AlbumArtists,
-                ctx,
+                None,
+                Some(BorderSymbols::default()),
+                None,
             ),
             playlists: PlaylistsPane::new(ctx),
             search: SearchPane::new(ctx),
@@ -287,16 +297,32 @@ impl<'panes> PaneContainer<'panes> {
             .flat_map(|tab| tab.panes.panes_iter())
             .chain(ctx.config.theme.layout.panes_iter())
             .filter_map(|pane| match &pane.pane {
-                PaneType::Browser { levels } => Some((
-                    pane.pane.clone(),
-                    Box::new(TagBrowserPane::new(levels.clone(), pane.pane.clone(), ctx))
-                        as Box<dyn BoxedPane>,
-                )),
+                PaneType::Browser { levels, border_style, border_symbols, column_widths } => {
+                    Some((
+                        pane.pane.clone(),
+                        Box::new(TagBrowserPane::new(
+                            ctx,
+                            levels.clone(),
+                            pane.pane.clone(),
+                            border_style.clone(),
+                            border_symbols.clone(),
+                            column_widths.clone(),
+                        )) as Box<dyn BoxedPane>,
+                    ))
+                }
                 PaneType::Volume { kind } => Some((
                     pane.pane.clone(),
                     Box::new(VolumePane::new(kind.clone())) as Box<dyn BoxedPane>,
                 )),
-                PaneType::Sticker { sticker, format, limit, sort } => Some((
+                PaneType::Sticker {
+                    sticker,
+                    format,
+                    limit,
+                    sort,
+                    border_style,
+                    border_symbols,
+                    column_widths,
+                } => Some((
                     pane.pane.clone(),
                     Box::new(StickerPane::new(
                         sticker.clone(),
@@ -305,6 +331,9 @@ impl<'panes> PaneContainer<'panes> {
                         format.clone(),
                         *limit,
                         ctx,
+                        border_style.clone(),
+                        border_symbols.clone(),
+                        column_widths.clone(),
                     )) as Box<dyn BoxedPane>,
                 )),
                 _ => None,

@@ -209,7 +209,7 @@ impl Default for QueueTableColumnsFile {
                 width: Some("0".to_string()),
                 alignment: None,
                 scroll_speed: None,
-            }
+            },
         ])
     }
 }
@@ -242,7 +242,7 @@ impl TryFrom<QueueTableColumnsFile> for QueueTableColumns {
                             PropertyKindOrText::Transform { .. } => text(String::new()),
                             PropertyKindOrText::Property(prop) => text(prop.to_string()),
                             PropertyKindOrText::Group(_) => text(String::new()),
-                            PropertyKindOrText::Empty() => {text(String::new())},
+                            PropertyKindOrText::Empty() => text(String::new()),
                         },
                     };
 
