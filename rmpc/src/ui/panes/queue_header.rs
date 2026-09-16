@@ -104,7 +104,8 @@ impl QueueHeaderPane {
 
     pub fn evaluate_content(format: &Property<SongProperty>, ctx: &Ctx) -> Vec<(u32, String)> {
         match &format.kind {
-            PropertyKindOrText::Text(_) => {
+            PropertyKindOrText::Text(_)
+            | PropertyKindOrText::Empty() => {
                 // Do nothing, everything is a constant text
                 Vec::new()
             }
@@ -146,8 +147,8 @@ impl QueueHeaderPane {
 
 impl Pane for QueueHeaderPane {
     fn render(&mut self, frame: &mut Frame, mut area: Rect, ctx: &Ctx) -> Result<()> {
-        // Reserve space for the queue scrollbar and padding on the right
-        area.width = area.width.saturating_sub(2);
+        // Reserve space for the queue scrollbar
+        area.width = area.width.saturating_sub(1);
         self.area = area;
 
         let widths = Layout::horizontal(self.column_widths.as_slice())

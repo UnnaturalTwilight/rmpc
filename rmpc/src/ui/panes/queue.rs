@@ -388,8 +388,7 @@ impl Pane for QueuePane {
                     let mut max_len: usize = widths[i].width.into();
                     // We have to subtract marker symbol length from max len in
                     // order to make space for the marker
-                    // symbol in case we are in the first column of the table
-                    // and the song is marked.
+                    // symbol in case we are in the first column of the table.
                     if i == 0 {
                         max_len = max_len.saturating_sub(marker_symbol_len);
                     }
@@ -490,7 +489,6 @@ impl Pane for QueuePane {
         ])
         .areas(area);
 
-        // let mut table_area ...
         let table_area = if self.queue.filter_active {
             self.areas[Areas::FilterArea] =
                 Rect::new(table_area.x, table_area.y, table_area.width, 1);
@@ -499,12 +497,6 @@ impl Pane for QueuePane {
             self.areas[Areas::FilterArea] = Rect::default();
             table_area
         };
-
-        // Create 1 column space between the table and the scrollbar
-        // table_area.width = table_area.width.saturating_sub(1);
-
-        // ^ WHY? It creates a gap between the table and the scrollbar which doesn't get
-        // the highlight style
 
         self.areas[Areas::Table] = table_area;
         self.areas[Areas::Scrollbar] = scrollbar_area;

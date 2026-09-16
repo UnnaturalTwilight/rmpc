@@ -250,6 +250,7 @@ pub enum PropertyKindFileOrText<T: Clone> {
     Property(T),
     Group(Vec<PropertyFile<T>>),
     Transform(TransformFile<T>),
+    Empty(),
 }
 
 #[skip_serializing_none]
@@ -267,6 +268,7 @@ pub enum PropertyKindOrText<T> {
     Property(T),
     Group(Vec<Property<T>>),
     Transform(Transform<T>),
+    Empty(),
 }
 
 impl<T: Clone> PropertyFile<T> {
@@ -297,6 +299,7 @@ impl<T: Clone> PropertyKindOrText<T> {
                     Self::collect_properties_inner(&p.kind, buf);
                 }
             }
+            PropertyKindOrText::Empty() => {}
         }
     }
 }
@@ -619,6 +622,7 @@ impl TryFrom<PropertyFile<PropertyKindFile>> for Property<PropertyKind> {
                         .try_collect()?;
                     PropertyKindOrText::Group(res)
                 }
+                PropertyKindFileOrText::Empty() => PropertyKindOrText::Empty(),
             },
             style: Some(value.style.to_config_or(None, None)?),
             default: value
