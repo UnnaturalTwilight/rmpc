@@ -341,7 +341,7 @@ impl TryFrom<PaneTypeFile> for PaneType {
                     .try_collect()?,
                 limit,
                 sort,
-                borders: if let Some(borders) = borders { Some(borders.try_into()?) } else { None },
+                borders: borders.map(|borders| borders.into()),
                 border_style: border_style
                     .as_ref()
                     .map(|s| s.to_config_or(None, None))
@@ -351,11 +351,7 @@ impl TryFrom<PaneTypeFile> for PaneType {
                 } else {
                     None
                 },
-                column_widths: if let Some(widths) = column_widths {
-                    Some([widths[0], widths[1], widths[2]])
-                } else {
-                    None
-                },
+                column_widths: column_widths.map(|w| [w[0], w[1], w[2]]),
             },
             PaneTypeFile::Search => PaneType::Search,
             PaneTypeFile::AlbumArt => PaneType::AlbumArt,
@@ -420,11 +416,7 @@ impl TryFrom<PaneTypeFile> for PaneType {
                                 skip: CollapseLevel::default(),
                             },
                         ],
-                        borders: if let Some(borders) = borders {
-                            Some(borders.try_into()?)
-                        } else {
-                            None
-                        },
+                        borders: borders.map(|borders| borders.into()),
                         border_style: border_style
                             .as_ref()
                             .map(|s| s.to_config_or(None, None))
@@ -434,11 +426,7 @@ impl TryFrom<PaneTypeFile> for PaneType {
                         } else {
                             None
                         },
-                        column_widths: if let Some(widths) = column_widths {
-                            Some([widths[0], widths[1], widths[2]])
-                        } else {
-                            None
-                        },
+                        column_widths: column_widths.map(|w| [w[0], w[1], w[2]]),
                     }
                 } else {
                     if levels.is_empty() {
@@ -451,11 +439,7 @@ impl TryFrom<PaneTypeFile> for PaneType {
 
                     PaneType::Browser {
                         levels: levels.into_iter().map(TryInto::try_into).try_collect()?,
-                        borders: if let Some(borders) = borders {
-                            Some(borders.try_into()?)
-                        } else {
-                            None
-                        },
+                        borders: borders.map(|borders| borders.into()),
                         border_style: border_style
                             .as_ref()
                             .map(|s| s.to_config_or(None, None))
@@ -465,11 +449,7 @@ impl TryFrom<PaneTypeFile> for PaneType {
                         } else {
                             None
                         },
-                        column_widths: if let Some(widths) = column_widths {
-                            Some([widths[0], widths[1], widths[2]])
-                        } else {
-                            None
-                        },
+                        column_widths: column_widths.map(|w| [w[0], w[1], w[2]]),
                     }
                 }
             }
