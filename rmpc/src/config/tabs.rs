@@ -553,7 +553,8 @@ pub enum PaneOrSplitFile {
     Component(String),
     Split {
         direction: DirectionFile,
-        // Maybe these should be deprecated in favor of using the SubPaneFile borders?
+        // Maybe these should be deprecated in favor of using the SubPaneFile
+        // borders?
         #[serde(default)]
         borders: BordersFile,
         panes: Vec<SubPaneFile>,
@@ -890,8 +891,9 @@ impl PaneOrSplitFile {
                 border_symbols: b_symbols,
                 id: id::new(),
             }),
-            // Components need to get border etc from the usage site and NOT the ones they are given
-            // during resolution because they are given default values initially.
+            // Components need to get border etc from the usage site and NOT the
+            // ones they are given during resolution because they are given
+            // default values initially.
             PaneOrSplitFile::Component(name) => match library.get(name) {
                 Some(SizedPaneOrSplit::Pane(pane)) => {
                     let mut v = pane.clone();

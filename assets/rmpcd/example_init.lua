@@ -15,6 +15,9 @@ local config = {
 -- Enable mpris support
 -- config.mpris = true
 
+-- Prevent screen lock and idle suspend while MPD is playing
+-- config.inhibit_idle = true
+
 -- Disable TCP keepalive on the MPD socket (enabled by default)
 -- config.enable_keepalive = false
 
@@ -28,6 +31,8 @@ local config = {
 -- 	api_key = "<your api key>",
 -- 	shared_secret = "<your shared secret key>",
 -- 	update_now_playing = false,
+-- 	-- Where to cache the Last.fm session key
+-- session_key_path = os.getenv("HOME") .. "/.local/share/rmpcd/lastfm-session-key",
 -- })
 
 -- Install notification on song change builtin

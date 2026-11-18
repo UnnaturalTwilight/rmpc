@@ -4,12 +4,21 @@ use anyhow::Result;
 use mlua::{IntoLua, Lua, LuaSerdeExt};
 use rmpc_mpd::commands::IdleEvent;
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
+use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, trace};
 
 use crate::lua::{
     lualib::{
         mpd::types::{Song, State, Status},
-        plugin::{ON_IDLE, ON_MESSAGE, ON_RECONNECT, ON_SHUTDOWN, ON_SONG_CHANGE, ON_STATE_CHANGE},
+        plugin::{
+            ON_IDLE,
+            ON_MESSAGE,
+            ON_RECONNECT,
+            ON_SHUTDOWN,
+            ON_SONG_CHANGE,
+            ON_START,
+            ON_STATE_CHANGE,
+        },
     },
     plugin::triggers::Triggers,
 };
@@ -20,6 +29,19 @@ pub enum PluginEvent {
     Callback {
         func: mlua::Function,
         args: Option<mlua::MultiValue>,
+    },
+    SocketData {
+        func: mlua::Function,
+        #[debug(skip)]
+        data: Vec<u8>,
+        #[debug(skip)]
+        token: CancellationToken,
+    },
+    SocketClosed {
+        func: mlua::Function,
+        reason: Option<String>,
+        #[debug(skip)]
+        token: CancellationToken,
     },
     SongChange {
         #[debug(skip)]
@@ -42,6 +64,7 @@ pub enum PluginEvent {
         event: IdleEvent,
     },
     Reconnect,
+    Start,
     Shutdown,
 }
 
@@ -87,7 +110,7 @@ impl LuaPlugin {
     }
 
     #[inline]
-    async fn handle_event(
+    pub(crate) async fn handle_event(
         name: &str,
         lua: &Lua,
         state: &mlua::Table,
@@ -99,6 +122,29 @@ impl LuaPlugin {
 
                 if let Err(err) = func.call_async::<()>(args.unwrap_or_default()).await {
                     error!("Failed to call plugin callback for song change\n{err}");
+                }
+            }
+            PluginEvent::SocketData { func, data, token } => {
+                if token.is_cancelled() {
+                    trace!(name, "Skipping socket data callback, socket closed");
+                    return Ok(true);
+                }
+                trace!(name, "Running socket data callback");
+
+                let data = lua.create_string(&data)?;
+                if let Err(err) = func.call_async::<()>(data).await {
+                    error!("Failed to call socket data callback\n{err}");
+                }
+            }
+            PluginEvent::SocketClosed { func, reason, token } => {
+                if token.is_cancelled() {
+                    trace!(name, "Skipping socket close callback, socket closed");
+                    return Ok(true);
+                }
+                trace!(name, "Running socket close callback");
+
+                if let Err(err) = func.call_async::<()>(reason).await {
+                    error!("Failed to call socket close callback\n{err}");
                 }
             }
             PluginEvent::SongChange { old, new } => {
@@ -141,19 +187,24 @@ impl LuaPlugin {
                 trace!(name, ON_IDLE, "Running plugin callback");
 
                 let func: mlua::Function = state.get(ON_IDLE)?;
-                if let Err(err) = func.call_async::<()>((state, ON_IDLE, event.to_string())).await {
+                if let Err(err) = func.call_async::<()>((state, event.to_string())).await {
                     error!("Failed to call plugin callback for idle event\n{err}");
                 }
             }
             PluginEvent::Reconnect => {
-                let func: Option<mlua::Function> = state.get(ON_RECONNECT)?;
+                trace!(name, ON_RECONNECT, "Running plugin callback");
 
-                if let Some(func) = func {
-                    trace!(name, "Running plugin reconnect callback");
+                let func: mlua::Function = state.get(ON_RECONNECT)?;
+                if let Err(err) = func.call_async::<()>(state).await {
+                    error!("Failed to call plugin reconnect callback\n{err}");
+                }
+            }
+            PluginEvent::Start => {
+                trace!(name, ON_START, "Running plugin callback");
 
-                    if let Err(err) = func.call_async::<()>(state).await {
-                        error!("Failed to call plugin reconnect callback\n{err}");
-                    }
+                let func: mlua::Function = state.get(ON_START)?;
+                if let Err(err) = func.call_async::<()>(state).await {
+                    error!("Failed to call plugin start callback\n{err}");
                 }
             }
             PluginEvent::Shutdown => {

@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use tokio::sync::{RwLock, mpsc::UnboundedSender};
 use tracing::error;
 
@@ -25,13 +25,14 @@ pub async fn setup(
     let tracklist = Tracklist::new(mpd_state.clone());
     let player = Player::new(mpd_state.clone(), client);
 
-    let conn = zbus::connection::Builder::session()?
-        .name("org.mpris.MediaPlayer2.mpd")?
-        .serve_at("/org/mpris/MediaPlayer2", root)?
-        .serve_at("/org/mpris/MediaPlayer2", player)?
-        .serve_at("/org/mpris/MediaPlayer2", tracklist)?
+    let conn = zbus::connection::Builder::session()
+        .name("org.mpris.MediaPlayer2.mpd")
+        .serve_at("/org/mpris/MediaPlayer2", root)
+        .serve_at("/org/mpris/MediaPlayer2", player)
+        .serve_at("/org/mpris/MediaPlayer2", tracklist)
         .build()
-        .await?;
+        .await
+        .context("Failed to start mpris")?;
 
     let (tx, rx) = tokio::sync::mpsc::unbounded_channel::<Change>();
     let conn_clone = conn.clone();

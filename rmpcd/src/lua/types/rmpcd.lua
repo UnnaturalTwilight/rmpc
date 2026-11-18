@@ -6,7 +6,7 @@
 ---@field install fun(path: "#builtin.notify"): NotifyPlugin
 ---@field install fun(path: "#builtin.playcount"): PlaycountPlugin
 ---@field install fun(path: "#builtin.lyrics"): LyricsPlugin
----@field install fun(spec: RmpcdPluginSpec): LyricsPlugin
+---@field install fun(spec: RmpcdPluginSpec): RmpcdPlugin
 
 ---@class RmpcdPluginSpec
 ---@field url string
@@ -20,6 +20,7 @@
 ---@field state_change fun(self, old_state: PlaybackState, new_state: PlaybackState)|nil
 ---@field message fun(self, channel: string, message: string)|nil
 ---@field idle_event fun(self, event: IdleEvent)|nil
+---@field start fun(self)|nil Called exactly once after rmpcd has connected to MPD and all plugins are loaded. Not called again on reconnect.
 ---@field shutdown fun(self)|nil
 ---@field reconnect fun(self)|nil Called after the connection to MPD is re-established. Channels from `subscribed_channels` are resubscribed before this runs.
 
@@ -31,4 +32,5 @@ rmpcd = rmpcd
 ---@field address string Point to your mpd server, e.g. "localhost:6600".
 ---@field password string | nil Password for your mpd server, if any.
 ---@field mpris boolean | nil
+---@field inhibit_idle boolean | nil Prevent the system from going idle while MPD is playing.
 ---@field subscribed_channels string[] | nil
